@@ -4,7 +4,7 @@ import { CheckedProjectWithReview } from "@/lib/data";
 import Link from "next/link";
 
 function shareUrl(project: { name: string; url: string; x_handle: string }) {
-  const text = `check out ${project.name} by @${project.x_handle} — found it on @0x_null_dev's weekendcheck`;
+  const text = `check out ${project.name} by @${project.x_handle} : found it on @0x_null_dev's weekendcheck`;
   return `https://x.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(project.url)}`;
 }
 

@@ -37,13 +37,13 @@ export function ThePile({ projects }: { projects: Project[] }) {
   }
 
   return (
-    <section className="py-10">
+    <section className="py-10 relative z-0">
       <div className="mx-auto max-w-5xl px-6">
         <div className="mb-6 flex items-end justify-between">
           <div>
             <h2 className="text-lg font-bold text-foreground">the pile</h2>
             <p className="text-xs text-muted">
-              {projects.length} projects submitted — upvote to help us pick what to review next
+              {projects.length} projects submitted : upvote to help us pick what to review next
             </p>
           </div>
           <Link
