@@ -1,4 +1,4 @@
-import { Project, Review } from "./types";
+import { Project, Review, Comment } from "./types";
 
 function slugify(name: string): string {
   return name
@@ -88,7 +88,11 @@ export const projects: Project[] = RAW_PROJECTS.map((p, i) => ({
   ...p,
   id: `proj-${i + 1}`,
   slug: slugify(p.name),
-  description: "",
+  description: i === 0 ? "AI-powered gap analysis for market opportunities. Find underserved niches before anyone else." :
+    i === 1 ? "AI-powered sports betting analytics and predictions. Track odds, analyze trends, and make smarter bets with real-time data across all major sportsbooks." :
+    i === 2 ? "One-click hosting for Claude artifacts. Deploy in seconds. No config, no Docker, no headaches. Just push and it's live." :
+    i === 3 ? "AI-powered review aggregation across all platforms. Pull in Google, Trustpilot, G2, and more into one dashboard with sentiment analysis." :
+    i === 4 ? "Conversational lead generation chatbot for businesses. Replace your boring contact form with a natural chat experience that actually converts." : "",
   tags: pickTags(i),
   status: i === 0 ? "in_review" as const : i < 5 ? "checked" as const : "in_queue" as const,
   upvotes: Math.floor(Math.random() * 80) + 1,
@@ -126,11 +130,22 @@ export const mockReviews: Review[] = [
     id: "rev-1",
     project_id: "proj-2",
     review_number: 1,
-    text: `## First Impression\nClean landing page, gets to the point fast. The AI angle is clear immediately.\n\n## What Works\nThe onboarding flow is smooth. I signed up and had a dashboard in under 30 seconds. That's rare.\n\n## What Doesn't\nThe pricing page is confusing — three tiers but the feature diff is unclear. I couldn't tell why I'd pay for Pro over Free.\n\n## Features I Want\n- Dark mode (obviously)\n- API access for power users\n- Better mobile experience — the dashboard is desktop-only right now`,
+    loom_url: "https://www.loom.com/embed/placeholder-betsuite-review",
+    text: `## First Impression\nClean landing page, gets to the point fast. The AI angle is clear immediately. You land on it and within 5 seconds you know what this thing does. No fluff, no "revolutionizing the future of..." nonsense. Just a clear value prop with a big sign-up button. The design is minimal but not lazy. They clearly thought about the above-the-fold experience.\n\n## What Works\nThe onboarding flow is smooth. I signed up and had a dashboard in under 30 seconds. That's rare. Most products I test make me fill out a 10-field form before I can even see what the product looks like. Here, it was email, password, done. The dashboard loaded instantly and the first thing I saw was a guided tour that actually made sense. The AI suggestions started appearing within minutes of connecting my data source. They weren't generic either. Genuinely useful recommendations.\n\n## What Doesn't\nThe pricing page is confusing. Three tiers but the feature diff is unclear. I spent a solid 2 minutes trying to figure out why I'd pay for Pro over Free and I still don't get it. The comparison table uses vague language like "advanced analytics" vs "basic analytics" without explaining what that actually means. Also, the mobile experience is rough. The dashboard is clearly desktop-first and on my phone half the charts were cut off. If your users are checking stats on the go, this needs work.\n\n## What I'd Build Next\n- Dark mode (obviously, it's 2026)\n- API access for power users who want to pipe this into their own tools\n- Better mobile experience. Not just responsive, actually mobile-first for the key workflows\n- A changelog or "what's new" section so returning users know what shipped\n- Export to CSV for the analytics data`,
     screenshots: [],
     published: true,
     created_at: new Date(2026, 2, 5).toISOString(),
     updated_at: new Date(2026, 2, 5).toISOString(),
+  },
+  {
+    id: "rev-1b",
+    project_id: "proj-2",
+    review_number: 2,
+    text: `## Follow-Up\nCame back two weeks later to see what changed. They shipped dark mode and the mobile experience is noticeably better. Charts resize properly now and the key stats are readable on a phone.\n\n## What Improved\nPricing page got a complete rework. The tiers make sense now — Free is clearly for hobbyists, Pro unlocks the real-time data feeds, and Team adds collaboration. Much clearer.\n\n## Still Missing\n- API access still not available\n- No changelog yet so I had to poke around to find what changed\n- CSV export works but the formatting is rough`,
+    screenshots: [],
+    published: true,
+    created_at: new Date(2026, 2, 19).toISOString(),
+    updated_at: new Date(2026, 2, 19).toISOString(),
   },
   {
     id: "rev-2",
@@ -164,6 +179,41 @@ export const mockReviews: Review[] = [
   },
 ];
 
+export const mockComments: Comment[] = [
+  {
+    id: "com-1",
+    project_id: "proj-2",
+    author_handle: "indie_dev_42",
+    text: "Been using this for a week now. The AI suggestions are actually useful, not just gimmicky.",
+    created_at: new Date(2026, 2, 6).toISOString(),
+  },
+  {
+    id: "com-2",
+    project_id: "proj-2",
+    author_handle: "sarahbuilds",
+    text: "Agree on the pricing page confusion. Had the same experience. Otherwise solid product.",
+    created_at: new Date(2026, 2, 6).toISOString(),
+  },
+  {
+    id: "com-3",
+    project_id: "proj-3",
+    author_handle: "vibecoder99",
+    text: "This is exactly what I needed. Deployed my Claude artifact in 2 minutes.",
+    created_at: new Date(2026, 2, 7).toISOString(),
+  },
+  {
+    id: "com-4",
+    project_id: "proj-4",
+    author_handle: "reviewfan",
+    text: "The sentiment analysis caught things Google reviews missed. Impressive for a v1.",
+    created_at: new Date(2026, 2, 7).toISOString(),
+  },
+];
+
+export function getCommentsForProject(projectId: string): Comment[] {
+  return mockComments.filter((c) => c.project_id === projectId);
+}
+
 export interface CheckedProjectWithReview {
   project: Project;
   review: Review;
@@ -195,7 +245,9 @@ export function getProjectBySlug(slug: string): Project | undefined {
 }
 
 export function getReviewsForProject(projectId: string): Review[] {
-  return mockReviews.filter((r) => r.project_id === projectId && r.published);
+  return mockReviews
+    .filter((r) => r.project_id === projectId && r.published)
+    .sort((a, b) => b.review_number - a.review_number);
 }
 
 function extractSnippet(text: string): string {

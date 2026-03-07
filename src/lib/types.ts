@@ -5,6 +5,8 @@ export interface Project {
   slug: string;
   name: string;
   logo_url: string;
+  x_profile_pic?: string;
+  founder_name?: string;
   url: string;
   github_url?: string;
   description: string;
@@ -30,4 +32,13 @@ export interface Review {
   published: boolean;
   created_at: string;
   updated_at: string;
+}
+
+export interface Comment {
+  id: string;
+  project_id: string;
+  author_handle: string;
+  author_pic?: string;
+  text: string;
+  created_at: string;
 }
