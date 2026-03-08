@@ -1,8 +1,10 @@
-import { getCheckedWithReviews } from "@/lib/data";
+export const dynamic = "force-dynamic";
+
+import { getCheckedProjectsWithReviews } from "@/lib/db/queries";
 import Link from "next/link";
 
-export default function CheckedPage() {
-  const items = getCheckedWithReviews();
+export default async function CheckedPage() {
+  const items = await getCheckedProjectsWithReviews();
   const latest = items[items.length - 1];
 
   return (

@@ -1,9 +1,14 @@
-import Link from "next/link";
-import { projects, getQueueProjects, getCheckedProjects } from "@/lib/data";
+export const dynamic = "force-dynamic";
 
-export default function SubmitPage() {
-  const queue = getQueueProjects();
-  const checked = getCheckedProjects();
+import Link from "next/link";
+import { getAllProjects, getQueueProjects, getCheckedProjects } from "@/lib/db/queries";
+
+export default async function SubmitPage() {
+  const [allProjects, queue, checked] = await Promise.all([
+    getAllProjects(),
+    getQueueProjects(),
+    getCheckedProjects(),
+  ]);
 
   return (
     <div className="flex flex-1 flex-col">
@@ -33,7 +38,7 @@ export default function SubmitPage() {
         {/* Stats inline */}
         <div className="mt-4 flex items-center gap-4 text-xs font-mono">
           <span>
-            <span className="font-bold text-foreground">{projects.length}</span>
+            <span className="font-bold text-foreground">{allProjects.length}</span>
             <span className="text-muted ml-1">submitted</span>
           </span>
           <span className="text-border">·</span>
@@ -131,7 +136,7 @@ export default function SubmitPage() {
       {/* CTA — full width */}
       <div className="bg-foreground pt-10 pb-6 px-6 text-center flex-1 flex flex-col justify-center">
         <p className="text-lg font-bold text-white">
-          {projects.length} builders already in. you next?
+          {allProjects.length} builders already in. you next?
         </p>
         <div className="mt-4 flex justify-center gap-3">
           <a

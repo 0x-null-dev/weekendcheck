@@ -1,3 +1,5 @@
+export const dynamic = "force-dynamic";
+
 import { Hero } from "@/components/Hero";
 import { FreshlyChecked } from "@/components/FreshlyChecked";
 import { ThePile } from "@/components/ThePile";
@@ -5,20 +7,23 @@ import { SubmitCTA } from "@/components/SubmitCTA";
 import {
   getInReviewProject,
   getQueueProjects,
-  getCheckedWithReviews,
+  getCheckedProjectsWithReviews,
   getCheckedProjects,
-  projects,
-} from "@/lib/data";
+  getAllProjects,
+} from "@/lib/db/queries";
 
-export default function Home() {
-  const inReview = getInReviewProject();
-  const queue = getQueueProjects();
-  const checked = getCheckedProjects();
-  const checkedWithReviews = getCheckedWithReviews();
+export default async function Home() {
+  const [inReview, queue, checked, checkedWithReviews, allProjects] = await Promise.all([
+    getInReviewProject(),
+    getQueueProjects(),
+    getCheckedProjects(),
+    getCheckedProjectsWithReviews(),
+    getAllProjects(),
+  ]);
   return (
     <>
       <Hero
-        submitted={projects.length}
+        submitted={allProjects.length}
         reviewed={checked.length}
         inQueue={queue.length}
         inReviewProject={inReview}

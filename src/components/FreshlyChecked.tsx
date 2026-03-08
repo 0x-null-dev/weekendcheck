@@ -1,6 +1,6 @@
 "use client";
 
-import { CheckedProjectWithReview } from "@/lib/data";
+import { CheckedProjectWithReview } from "@/lib/db/queries";
 import Link from "next/link";
 
 function shareUrl(project: { name: string; url: string; x_handle: string }) {

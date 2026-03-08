@@ -3,8 +3,8 @@ import Link from "next/link";
 import {
   getProjectBySlug,
   getReviewsForProject,
-  projects,
-} from "@/lib/data";
+  getQueueProjects,
+} from "@/lib/db/queries";
 import { PendingReview } from "./pending-review";
 import { ReviewContent } from "./review-content";
 
@@ -14,19 +14,17 @@ export default async function ProjectPage({
   params: Promise<{ slug: string }>;
 }) {
   const { slug } = await params;
-  const project = getProjectBySlug(slug);
+  const project = await getProjectBySlug(slug);
   if (!project) notFound();
 
-  const reviews = getReviewsForProject(project.id);
+  const reviews = await getReviewsForProject(project.id);
   const hasReview = reviews.length > 0;
 
-  const queuePosition =
-    project.status === "in_queue"
-      ? projects
-          .filter((p) => p.status === "in_queue")
-          .sort((a, b) => b.upvotes - a.upvotes)
-          .findIndex((p) => p.id === project.id) + 1
-      : null;
+  let queuePosition: number | null = null;
+  if (project.status === "in_queue") {
+    const queue = await getQueueProjects();
+    queuePosition = queue.findIndex((p) => p.id === project.id) + 1;
+  }
 
   return (
     <div>

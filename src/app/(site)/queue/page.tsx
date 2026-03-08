@@ -1,9 +1,14 @@
-import { getQueueProjects, projects } from "@/lib/data";
+export const dynamic = "force-dynamic";
+
+import { getQueueProjects, getAllProjects } from "@/lib/db/queries";
 import { QueueList } from "./queue-list";
 import Link from "next/link";
 
-export default function QueuePage() {
-  const queue = getQueueProjects();
+export default async function QueuePage() {
+  const [queue, allProjects] = await Promise.all([
+    getQueueProjects(),
+    getAllProjects(),
+  ]);
   const sorted = [...queue].sort((a, b) => b.upvotes - a.upvotes);
 
   return (
@@ -44,7 +49,7 @@ export default function QueuePage() {
         {/* Stats */}
         <div className="mt-4 flex items-center gap-4 text-xs font-mono">
           <span>
-            <span className="font-bold text-foreground">{projects.length}</span>
+            <span className="font-bold text-foreground">{allProjects.length}</span>
             <span className="text-muted ml-1">submitted</span>
           </span>
           <span className="text-border">·</span>
@@ -54,7 +59,7 @@ export default function QueuePage() {
           </span>
           <span className="text-border">·</span>
           <span>
-            <span className="font-bold text-green">{projects.length - queue.length - 1}</span>
+            <span className="font-bold text-green">{allProjects.length - queue.length - 1}</span>
             <span className="text-muted ml-1">reviewed</span>
           </span>
         </div>
