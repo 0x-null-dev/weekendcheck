@@ -1,13 +1,14 @@
 export const dynamic = "force-dynamic";
 
-import { getQueueProjects, getAllProjects } from "@/lib/db/queries";
+import { getQueueProjects, getAllProjects, getCheckedProjects } from "@/lib/db/queries";
 import { QueueList } from "./queue-list";
 import Link from "next/link";
 
 export default async function QueuePage() {
-  const [queue, allProjects] = await Promise.all([
+  const [queue, allProjects, checked] = await Promise.all([
     getQueueProjects(),
     getAllProjects(),
+    getCheckedProjects(),
   ]);
   const sorted = [...queue].sort((a, b) => b.upvotes - a.upvotes);
 
@@ -59,7 +60,7 @@ export default async function QueuePage() {
           </span>
           <span className="text-border">·</span>
           <span>
-            <span className="font-bold text-green">{allProjects.length - queue.length - 1}</span>
+            <span className="font-bold text-green">{checked.length}</span>
             <span className="text-muted ml-1">reviewed</span>
           </span>
         </div>

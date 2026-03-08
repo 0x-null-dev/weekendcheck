@@ -79,6 +79,16 @@ export default function AdminDashboard() {
     useSensor(PointerSensor, { activationConstraint: { distance: 5 } })
   );
 
+  async function startReviewing(id: string, name: string) {
+    if (!confirm(`Start reviewing "${name}"?`)) return;
+    await fetch(`/api/admin/projects/${id}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ status: "in_review" }),
+    });
+    await load();
+  }
+
   async function finishReview() {
     if (!confirm("Finish current review and promote next in queue?")) return;
     setFinishing(true);
@@ -195,11 +205,18 @@ export default function AdminDashboard() {
         ) : (
           <div className="rounded-xl border border-dashed border-border p-6 text-center">
             <p className="text-sm text-muted mb-1">nothing being reviewed right now</p>
-            <p className="text-xs font-mono text-muted/60">
-              {queue.length > 0
-                ? `${queue.length} projects waiting — first in queue auto-starts when ready`
-                : "add projects to the queue to get started"}
-            </p>
+            {queue.length > 0 ? (
+              <button
+                onClick={() => startReviewing(queue[0].id, queue[0].name)}
+                className="mt-2 rounded-lg bg-accent px-4 py-2 text-xs font-bold text-white transition-colors hover:bg-accent/80"
+              >
+                start reviewing {queue[0].name} →
+              </button>
+            ) : (
+              <p className="text-xs font-mono text-muted/60">
+                add projects to the queue to get started
+              </p>
+            )}
           </div>
         )}
       </section>
