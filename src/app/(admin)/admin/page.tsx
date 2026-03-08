@@ -186,11 +186,19 @@ export default function AdminDashboard() {
                 </div>
               </div>
               <div className="flex items-center gap-2">
+                <a
+                  href={inReview.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="rounded-lg border border-border px-3 py-1.5 text-xs font-mono text-foreground hover:border-accent hover:text-accent transition-colors"
+                >
+                  visit ↗
+                </a>
                 <Link
                   href={`/admin/projects/${inReview.id}`}
                   className="rounded-lg border border-border px-3 py-1.5 text-xs font-mono text-foreground hover:border-accent hover:text-accent transition-colors"
                 >
-                  open
+                  edit
                 </Link>
                 <button
                   onClick={finishReview}
@@ -312,9 +320,8 @@ export default function AdminDashboard() {
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
             {reviewed.slice(0, 6).map((p) => (
-              <Link
+              <div
                 key={p.id}
-                href={`/admin/projects/${p.id}`}
                 className="group rounded-lg border border-border p-4 hover:border-accent/30 transition-colors"
               >
                 <div className="flex items-center gap-3 mb-2">
@@ -326,13 +333,29 @@ export default function AdminDashboard() {
                     height={32}
                     className="h-8 w-8 rounded-lg object-contain"
                   />
-                  <div className="min-w-0">
-                    <h3 className="text-sm font-medium text-foreground truncate group-hover:text-accent transition-colors">
+                  <div className="min-w-0 flex-1">
+                    <h3 className="text-sm font-medium text-foreground truncate">
                       {p.name}
                     </h3>
                     <span className="text-[11px] font-mono text-muted">
                       @{p.xHandle}
                     </span>
+                  </div>
+                  <div className="flex items-center gap-2 shrink-0">
+                    <a
+                      href={p.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="rounded border border-border px-2 py-0.5 text-[11px] font-mono text-foreground hover:border-accent hover:text-accent transition-colors"
+                    >
+                      open ↗
+                    </a>
+                    <Link
+                      href={`/admin/projects/${p.id}`}
+                      className="rounded border border-border px-2 py-0.5 text-[11px] font-mono text-foreground hover:border-accent hover:text-accent transition-colors"
+                    >
+                      edit
+                    </Link>
                   </div>
                 </div>
                 <div className="flex items-center gap-3 text-[10px] font-mono text-muted">
@@ -347,7 +370,7 @@ export default function AdminDashboard() {
                     </span>
                   )}
                 </div>
-              </Link>
+              </div>
             ))}
           </div>
         )}
@@ -473,9 +496,17 @@ function SortableQueueItem({
 
       {/* Actions */}
       <div className="flex items-center gap-2 shrink-0 opacity-0 group-hover:opacity-100 transition-opacity">
+        <a
+          href={project.url}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="rounded border border-border px-2 py-0.5 text-[11px] font-mono text-foreground hover:border-accent hover:text-accent transition-colors"
+        >
+          open ↗
+        </a>
         <Link
           href={`/admin/projects/${project.id}`}
-          className="text-[11px] font-mono text-accent hover:underline"
+          className="rounded border border-border px-2 py-0.5 text-[11px] font-mono text-foreground hover:border-accent hover:text-accent transition-colors"
         >
           edit
         </Link>
