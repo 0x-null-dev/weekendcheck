@@ -34,7 +34,7 @@ export default async function ProjectPage({
           {/* Back nav */}
           <Link
             href={hasReview ? "/checked" : "/queue"}
-            className="inline-flex items-center gap-1 text-xs text-muted hover:text-foreground transition-colors mb-6"
+            className="inline-flex items-center gap-1 text-sm text-muted hover:text-foreground transition-colors mb-6"
           >
             <span>←</span> back to {hasReview ? "checked" : "the pile"}
           </Link>
@@ -57,27 +57,27 @@ export default async function ProjectPage({
                       {project.name}
                     </h1>
                     {project.status === "checked" && (
-                      <span className="rounded-full bg-green/10 border border-green/20 px-2.5 py-0.5 text-[10px] font-mono font-bold text-green">
+                      <span className="rounded-full bg-green/10 border border-green/20 px-2.5 py-0.5 text-[12px] font-mono font-bold text-green">
                         reviewed
                       </span>
                     )}
                     {project.status === "in_queue" && (
-                      <span className="rounded-full bg-accent/10 border border-accent/20 px-2.5 py-0.5 text-[10px] font-mono font-bold text-accent">
+                      <span className="rounded-full bg-accent/10 border border-accent/20 px-2.5 py-0.5 text-[12px] font-mono font-bold text-accent">
                         in queue
                       </span>
                     )}
                     {project.status === "in_review" && (
-                      <span className="rounded-full bg-yellow-500/10 border border-yellow-500/20 px-2.5 py-0.5 text-[10px] font-mono font-bold text-yellow-600">
+                      <span className="rounded-full bg-yellow-500/10 border border-yellow-500/20 px-2.5 py-0.5 text-[12px] font-mono font-bold text-yellow-600">
                         reviewing now
                       </span>
                     )}
                   </div>
                   <div className="flex items-center gap-3 mt-1">
-                    <span className="font-mono text-xs text-muted">▲ {project.upvotes}</span>
+                    <span className="font-mono text-sm text-muted">▲ {project.upvotes}</span>
                     {queuePosition && (
                       <>
-                        <span className="text-border text-xs">|</span>
-                        <span className="font-mono text-xs text-muted">#{queuePosition} in queue</span>
+                        <span className="text-border text-sm">|</span>
+                        <span className="font-mono text-sm text-muted">#{queuePosition} in queue</span>
                       </>
                     )}
                   </div>
@@ -86,7 +86,7 @@ export default async function ProjectPage({
 
               {/* Description */}
               {project.description && (
-                <p className="text-sm text-foreground/70 leading-relaxed max-w-lg">
+                <p className="text-[15px] text-foreground/70 leading-relaxed max-w-lg">
                   {project.description}
                 </p>
               )}
@@ -97,7 +97,7 @@ export default async function ProjectPage({
                   {project.tags.map((tag) => (
                     <span
                       key={tag}
-                      className="rounded-full bg-background border border-border px-2.5 py-0.5 text-[11px] font-mono text-muted"
+                      className="rounded-full bg-background border border-border px-2.5 py-0.5 text-[13px] font-mono text-muted"
                     >
                       {tag}
                     </span>
@@ -111,7 +111,7 @@ export default async function ProjectPage({
                   href={project.url}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="rounded-full bg-foreground px-5 py-2 text-sm font-medium text-background transition-colors hover:bg-foreground/80"
+                  className="rounded-full bg-foreground px-5 py-2 text-[15px] font-medium text-background transition-colors hover:bg-foreground/80"
                 >
                   visit project ↗
                 </a>
@@ -119,7 +119,7 @@ export default async function ProjectPage({
                   href={`https://x.com/${project.x_handle}`}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="flex items-center gap-1.5 rounded-full border border-border px-4 py-2 text-sm font-medium text-foreground transition-colors hover:bg-background"
+                  className="flex items-center gap-1.5 rounded-full border border-border px-4 py-2 text-[15px] font-medium text-foreground transition-colors hover:bg-background"
                 >
                   <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
                     <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
@@ -131,7 +131,7 @@ export default async function ProjectPage({
 
             {/* Right: Founder card */}
             <div className="sm:w-56 shrink-0">
-              <p className="text-[10px] font-mono text-muted uppercase tracking-widest mb-3">
+              <p className="text-[12px] font-mono text-muted uppercase tracking-widest mb-3">
                 founder
               </p>
               <a
@@ -158,18 +158,18 @@ export default async function ProjectPage({
                 )}
                 <div className="min-w-0">
                   {project.founder_name && (
-                    <p className="text-sm font-medium text-foreground truncate">
+                    <p className="text-[15px] font-medium text-foreground truncate">
                       {project.founder_name}
                     </p>
                   )}
-                  <p className="font-mono text-xs text-muted truncate">
+                  <p className="font-mono text-sm text-muted truncate">
                     @{project.x_handle}
                   </p>
                 </div>
               </a>
 
               {/* Submitted date */}
-              <div className="mt-3 flex items-center gap-2 text-[11px] font-mono text-muted">
+              <div className="mt-3 flex items-center gap-2 text-[13px] font-mono text-muted">
                 <span>submitted</span>
                 <span>
                   {new Date(project.created_at).toLocaleDateString("en-US", {
@@ -180,7 +180,7 @@ export default async function ProjectPage({
                 </span>
               </div>
               {project.reviewed_at && (
-                <div className="mt-1 flex items-center gap-2 text-[11px] font-mono text-green">
+                <div className="mt-1 flex items-center gap-2 text-[13px] font-mono text-green">
                   <span>reviewed</span>
                   <span>
                     {new Date(project.reviewed_at).toLocaleDateString("en-US", {
@@ -205,10 +205,10 @@ export default async function ProjectPage({
                 <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
               </svg>
               <div>
-                <p className="text-sm font-medium text-foreground">
+                <p className="text-[15px] font-medium text-foreground">
                   tried {project.name}? drop your review
                 </p>
-                <p className="text-xs text-muted mt-0.5">
+                <p className="text-sm text-muted mt-0.5">
                   share your honest take and help other builders
                 </p>
               </div>
@@ -219,7 +219,7 @@ export default async function ProjectPage({
               )}`}
               target="_blank"
               rel="noopener noreferrer"
-              className="flex items-center gap-1.5 rounded-full bg-foreground px-5 py-2 text-xs font-bold text-background transition-colors hover:bg-foreground/80 shrink-0"
+              className="flex items-center gap-1.5 rounded-full bg-foreground px-5 py-2 text-sm font-bold text-background transition-colors hover:bg-foreground/80 shrink-0"
             >
               <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor">
                 <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />

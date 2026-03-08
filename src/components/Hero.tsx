@@ -43,7 +43,7 @@ export function Hero({ submitted, reviewed, inQueue, inReviewProject }: HeroProp
             </p>
 
             {/* Steps */}
-            <div className="mt-6 flex items-center gap-6 text-sm text-muted">
+            <div className="mt-6 flex items-center gap-6 text-[15px] text-muted">
               <span><span className="font-medium text-foreground">1.</span> follow & DM your link</span>
               <span className="text-border">→</span>
               <span><span className="font-medium text-foreground">2.</span> get in the pile</span>
@@ -60,19 +60,19 @@ export function Hero({ submitted, reviewed, inQueue, inReviewProject }: HeroProp
             <div className="mt-8 flex flex-wrap items-center gap-4">
               <Link
                 href="/submit"
-                className="rounded-full bg-foreground px-5 py-2 text-sm font-medium text-background transition-colors hover:bg-foreground/80"
+                className="rounded-full bg-foreground px-5 py-2 text-[15px] font-medium text-background transition-colors hover:bg-foreground/80"
               >
                 submit your project
               </Link>
-              <div className="flex items-center gap-3 text-sm">
+              <div className="flex items-center gap-3 text-[15px]">
                 <span className="font-mono font-bold text-foreground">{submitted}</span>
-                <span className="text-muted text-xs">submitted</span>
+                <span className="text-muted text-sm">submitted</span>
                 <span className="text-border">·</span>
                 <span className="font-mono font-bold text-green">{reviewed}</span>
-                <span className="text-muted text-xs">reviewed</span>
+                <span className="text-muted text-sm">reviewed</span>
                 <span className="text-border">·</span>
                 <span className="font-mono font-bold text-foreground">{inQueue}</span>
-                <span className="text-muted text-xs">in queue</span>
+                <span className="text-muted text-sm">in queue</span>
               </div>
             </div>
           </div>
@@ -87,7 +87,7 @@ export function Hero({ submitted, reviewed, inQueue, inReviewProject }: HeroProp
               </svg>
 
               {/* Sketch annotation */}
-              <p className="text-[11px] text-muted mb-2 italic" style={{ fontFamily: "var(--font-geist-mono)" }}>
+              <p className="text-[13px] text-muted mb-2 italic" style={{ fontFamily: "var(--font-geist-mono)" }}>
                 ~ currently on the desk ~
               </p>
 
@@ -119,7 +119,7 @@ export function Hero({ submitted, reviewed, inQueue, inReviewProject }: HeroProp
                       <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-accent opacity-60" />
                       <span className="relative inline-flex h-2 w-2 rounded-full bg-accent" />
                     </span>
-                    <span className="text-[11px] font-medium text-accent">reviewing now</span>
+                    <span className="text-[13px] font-medium text-accent">reviewing now</span>
                   </span>
                 </div>
 
@@ -143,14 +143,14 @@ export function Hero({ submitted, reviewed, inQueue, inReviewProject }: HeroProp
                   href={`https://x.com/${inReviewProject.x_handle}`}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="block text-center font-mono text-xs text-muted hover:text-accent mt-1"
+                  className="block text-center font-mono text-sm text-muted hover:text-accent mt-1"
                 >
                   @{inReviewProject.x_handle}
                 </a>
 
                 {/* Sketch checklist annotation at bottom */}
                 <div className="mt-4 pt-3 border-t border-dashed border-border/60">
-                  <div className="flex flex-col gap-1 text-[10px] font-mono text-muted/70">
+                  <div className="flex flex-col gap-1 text-[12px] font-mono text-muted/70">
                     <span className="flex items-center gap-1.5">
                       <svg width="10" height="10" viewBox="0 0 10 10"><rect x="1" y="1" width="8" height="8" rx="1" stroke="currentColor" strokeWidth="0.8" fill="none" /><path d="M2.5 5.5 L4 7 L7.5 3" stroke="#ff6b35" strokeWidth="0.8" fill="none" strokeLinecap="round" /></svg>
                       sign up flow
@@ -171,7 +171,7 @@ export function Hero({ submitted, reviewed, inQueue, inReviewProject }: HeroProp
               <div className="mt-3 flex items-center gap-2">
                 <Link
                   href={`/project/${inReviewProject.slug}`}
-                  className="flex-1 rounded-sm border border-foreground bg-foreground px-3 py-1.5 text-center text-xs font-medium text-background transition-colors hover:bg-foreground/80"
+                  className="flex-1 rounded-sm border border-foreground bg-foreground px-3 py-1.5 text-center text-sm font-medium text-background transition-colors hover:bg-foreground/80"
                 >
                   view review page →
                 </Link>
@@ -179,7 +179,7 @@ export function Hero({ submitted, reviewed, inQueue, inReviewProject }: HeroProp
                   href={`https://x.com/${inReviewProject.x_handle}`}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="flex items-center gap-1.5 rounded-sm border border-border px-3 py-1.5 text-xs font-medium text-foreground transition-colors hover:bg-surface-hover"
+                  className="flex items-center gap-1.5 rounded-sm border border-border px-3 py-1.5 text-sm font-medium text-foreground transition-colors hover:bg-surface-hover"
                 >
                   <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" /></svg>
                   follow

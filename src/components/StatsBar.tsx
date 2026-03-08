@@ -30,10 +30,10 @@ function Stat({ value, label, highlight, pulse }: { value: number; label: string
           <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-accent" />
         </span>
       )}
-      <span className={`font-mono text-sm font-bold ${highlight ? "text-green" : "text-foreground"}`}>
+      <span className={`font-mono text-[15px] font-bold ${highlight ? "text-green" : "text-foreground"}`}>
         {value}
       </span>
-      <span className="text-xs text-muted">{label}</span>
+      <span className="text-sm text-muted">{label}</span>
     </div>
   );
 }

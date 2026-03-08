@@ -17,11 +17,11 @@ export default async function QueuePage() {
       <div className="mb-8">
         <div className="flex items-center gap-3">
           <h1 className="text-2xl font-bold text-foreground">the pile</h1>
-          <span className="rounded-full bg-accent/10 border border-accent/20 px-2.5 py-0.5 font-mono text-xs font-bold text-accent">
+          <span className="rounded-full bg-accent/10 border border-accent/20 px-2.5 py-0.5 font-mono text-sm font-bold text-accent">
             {queue.length}
           </span>
         </div>
-        <p className="mt-1 text-sm text-muted max-w-xl">
+        <p className="mt-1 text-[15px] text-muted max-w-xl">
           upvote the ones you want us to check next. click any project to try it yourself.
         </p>
 
@@ -29,11 +29,11 @@ export default async function QueuePage() {
         <div className="mt-4 flex flex-wrap items-center gap-3">
           <Link
             href="/submit"
-            className="rounded-full bg-accent px-4 py-1.5 text-xs font-medium text-background transition-colors hover:bg-accent-hover"
+            className="rounded-full bg-accent px-4 py-1.5 text-sm font-medium text-background transition-colors hover:bg-accent-hover"
           >
             submit yours →
           </Link>
-          <div className="flex items-center gap-4 text-xs text-muted">
+          <div className="flex items-center gap-4 text-sm text-muted">
             <span className="flex items-center gap-1.5">
               <span className="text-accent font-bold">▲</span> upvote to prioritize
             </span>
@@ -47,7 +47,7 @@ export default async function QueuePage() {
         </div>
 
         {/* Stats */}
-        <div className="mt-4 flex items-center gap-4 text-xs font-mono">
+        <div className="mt-4 flex items-center gap-4 text-sm font-mono">
           <span>
             <span className="font-bold text-foreground">{allProjects.length}</span>
             <span className="text-muted ml-1">submitted</span>

@@ -66,7 +66,7 @@ export function PendingReview({
           <h2 className="text-xl font-bold text-foreground">
             review in progress
           </h2>
-          <p className="mt-3 text-sm text-muted leading-relaxed">
+          <p className="mt-3 text-[15px] text-muted leading-relaxed">
             0xNull is currently poking around this product. signing up, clicking buttons, breaking things. the full review will drop here once it&apos;s done.
           </p>
 
@@ -115,12 +115,12 @@ export function PendingReview({
           <h2 className="text-xl font-bold text-foreground">
             #{queuePosition} in the pile
           </h2>
-          <p className="mt-3 text-sm text-muted leading-relaxed">
+          <p className="mt-3 text-[15px] text-muted leading-relaxed">
             this project is waiting to be reviewed. the community upvotes help us decide what to check next.
           </p>
           <Link
             href="/queue"
-            className="mt-5 inline-block rounded-full bg-foreground px-5 py-2 text-sm font-medium text-background transition-colors hover:bg-foreground/80"
+            className="mt-5 inline-block rounded-full bg-foreground px-5 py-2 text-[15px] font-medium text-background transition-colors hover:bg-foreground/80"
           >
             view the pile →
           </Link>

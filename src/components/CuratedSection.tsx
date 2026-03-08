@@ -16,7 +16,7 @@ export function CuratedSection({ title, subtitle, projects, variant = "default" 
         <div className="mb-4">
           <h2 className="text-lg font-bold text-foreground">{title}</h2>
           {subtitle && (
-            <p className="text-xs text-muted">{subtitle}</p>
+            <p className="text-sm text-muted">{subtitle}</p>
           )}
         </div>
 
@@ -48,7 +48,7 @@ function BestOfRow({ projects }: { projects: Project[] }) {
           }}
         >
           {/* Trophy/medal for rank */}
-          <span className="absolute -top-2 -right-2 text-sm">
+          <span className="absolute -top-2 -right-2 text-[15px]">
             {i === 0 ? "🥇" : i === 1 ? "🥈" : i === 2 ? "🥉" : "⭐"}
           </span>
 
@@ -62,14 +62,14 @@ function BestOfRow({ projects }: { projects: Project[] }) {
               className="h-9 w-9 rounded-lg object-contain"
             />
             <div>
-              <h3 className="text-sm font-bold text-foreground group-hover:text-accent transition-colors">
+              <h3 className="text-[15px] font-bold text-foreground group-hover:text-accent transition-colors">
                 {project.name}
               </h3>
-              <p className="font-mono text-[11px] text-muted">@{project.x_handle}</p>
+              <p className="font-mono text-[13px] text-muted">@{project.x_handle}</p>
             </div>
             <div className="flex items-center gap-1 text-accent">
-              <span className="text-xs">▲</span>
-              <span className="font-mono text-sm font-bold">{project.upvotes}</span>
+              <span className="text-sm">▲</span>
+              <span className="font-mono text-[15px] font-bold">{project.upvotes}</span>
             </div>
           </div>
         </a>
@@ -99,13 +99,13 @@ function PicksRow({ projects }: { projects: Project[] }) {
               className="h-7 w-7 rounded object-contain mt-0.5"
             />
             <div className="min-w-0">
-              <h3 className="text-sm font-medium text-foreground group-hover:text-accent transition-colors truncate">
+              <h3 className="text-[15px] font-medium text-foreground group-hover:text-accent transition-colors truncate">
                 {project.name}
               </h3>
-              <p className="font-mono text-[11px] text-muted">@{project.x_handle}</p>
+              <p className="font-mono text-[13px] text-muted">@{project.x_handle}</p>
               <div className="mt-1.5 flex flex-wrap gap-1">
                 {project.tags.slice(0, 2).map((tag) => (
-                  <span key={tag} className="rounded-sm bg-accent/8 px-1.5 py-0.5 text-[9px] text-accent font-medium">
+                  <span key={tag} className="rounded-sm bg-accent/8 px-1.5 py-0.5 text-[11px] text-accent font-medium">
                     {tag}
                   </span>
                 ))}
@@ -142,10 +142,10 @@ function ToolsGrid({ projects }: { projects: Project[] }) {
             height={24}
             className="h-6 w-6 rounded object-contain"
           />
-          <span className="text-sm font-medium text-foreground group-hover:text-accent transition-colors">
+          <span className="text-[15px] font-medium text-foreground group-hover:text-accent transition-colors">
             {project.name}
           </span>
-          <span className="text-[10px] text-muted">↗</span>
+          <span className="text-[12px] text-muted">↗</span>
         </a>
       ))}
     </div>

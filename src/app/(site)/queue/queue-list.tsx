@@ -32,7 +32,7 @@ export function QueueList({ projects }: { projects: Project[] }) {
             className="group flex items-center gap-3 rounded-sm border border-border bg-surface px-3 py-2.5 transition-all hover:border-border-strong hover:shadow-sm"
           >
             {/* Rank */}
-            <span className="font-mono text-[10px] text-muted w-5 text-right shrink-0">
+            <span className="font-mono text-[12px] text-muted w-5 text-right shrink-0">
               {rank}
             </span>
 
@@ -45,8 +45,8 @@ export function QueueList({ projects }: { projects: Project[] }) {
                   : "text-muted hover:bg-accent/5 hover:text-accent"
               }`}
             >
-              <span className={`text-[9px] transition-transform ${hasVoted ? "scale-125" : ""}`}>▲</span>
-              <span className="font-mono text-[10px] font-medium">{count}</span>
+              <span className={`text-[11px] transition-transform ${hasVoted ? "scale-125" : ""}`}>▲</span>
+              <span className="font-mono text-[12px] font-medium">{count}</span>
             </button>
 
             {/* Logo */}
@@ -65,7 +65,7 @@ export function QueueList({ projects }: { projects: Project[] }) {
                 href={project.url}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-xs font-bold text-foreground hover:text-accent transition-colors truncate block"
+                className="text-sm font-bold text-foreground hover:text-accent transition-colors truncate block"
               >
                 {project.name}
               </a>
@@ -73,7 +73,7 @@ export function QueueList({ projects }: { projects: Project[] }) {
                 href={`https://x.com/${project.x_handle}`}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="font-mono text-[10px] text-muted hover:text-accent transition-colors truncate block"
+                className="font-mono text-[12px] text-muted hover:text-accent transition-colors truncate block"
               >
                 @{project.x_handle}
               </a>

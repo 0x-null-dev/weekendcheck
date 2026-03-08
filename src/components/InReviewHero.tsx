@@ -11,7 +11,7 @@ export function InReviewHero({ project }: { project: Project }) {
               <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-accent opacity-60" />
               <span className="relative inline-flex h-2 w-2 rounded-full bg-accent" />
             </span>
-            <span className="font-mono text-xs text-accent uppercase tracking-widest">
+            <span className="font-mono text-sm text-accent uppercase tracking-widest">
               currently reviewing
             </span>
           </div>
@@ -36,7 +36,7 @@ export function InReviewHero({ project }: { project: Project }) {
             href={`https://x.com/${project.x_handle}`}
             target="_blank"
             rel="noopener noreferrer"
-            className="font-mono text-sm text-muted hover:text-accent"
+            className="font-mono text-[15px] text-muted hover:text-accent"
           >
             @{project.x_handle}
           </a>
@@ -46,7 +46,7 @@ export function InReviewHero({ project }: { project: Project }) {
             {project.tags.map((tag) => (
               <span
                 key={tag}
-                className="rounded-full border border-border px-2.5 py-0.5 text-[11px] text-muted"
+                className="rounded-full border border-border px-2.5 py-0.5 text-[13px] text-muted"
               >
                 {tag}
               </span>
@@ -54,7 +54,7 @@ export function InReviewHero({ project }: { project: Project }) {
           </div>
 
           {/* Arrow */}
-          <p className="mt-6 text-xs text-muted">↓ up next from the pile</p>
+          <p className="mt-6 text-sm text-muted">↓ up next from the pile</p>
         </div>
       </div>
     </section>

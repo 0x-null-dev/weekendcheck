@@ -1,7 +1,7 @@
 export function Footer() {
   return (
     <footer className="border-t border-border py-4">
-      <p className="text-center text-sm text-muted">
+      <p className="text-center text-[15px] text-muted">
         made with ❤️ by human behind{" "}
         <a
           href="https://x.com/0x_null_dev"

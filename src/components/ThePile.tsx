@@ -42,13 +42,13 @@ export function ThePile({ projects }: { projects: Project[] }) {
         <div className="mb-6 flex items-end justify-between">
           <div>
             <h2 className="text-lg font-bold text-foreground">the pile</h2>
-            <p className="text-xs text-muted">
+            <p className="text-sm text-muted">
               {projects.length} projects submitted : upvote to help us pick what to review next
             </p>
           </div>
           <Link
             href="/queue"
-            className="inline-flex items-center gap-1 rounded-full border border-border px-3 py-1 font-mono text-xs font-medium text-foreground transition-colors hover:bg-surface-hover"
+            className="inline-flex items-center gap-1 rounded-full border border-border px-3 py-1 font-mono text-sm font-medium text-foreground transition-colors hover:bg-surface-hover"
           >
             view all {projects.length} →
           </Link>
@@ -76,7 +76,7 @@ export function ThePile({ projects }: { projects: Project[] }) {
                 onMouseLeave={() => setHovered(null)}
               >
                 {/* Rank number */}
-                <span className="absolute -top-1 -left-1 font-mono text-[9px] text-muted bg-background px-1 rounded-sm border border-border">
+                <span className="absolute -top-1 -left-1 font-mono text-[11px] text-muted bg-background px-1 rounded-sm border border-border">
                   {rank}
                 </span>
 
@@ -95,7 +95,7 @@ export function ThePile({ projects }: { projects: Project[] }) {
                     height={24}
                     className="h-6 w-6 rounded object-contain"
                   />
-                  <h3 className="text-[11px] font-medium text-foreground truncate w-full hover:text-accent transition-colors">
+                  <h3 className="text-[13px] font-medium text-foreground truncate w-full hover:text-accent transition-colors">
                     {project.name}
                   </h3>
                 </a>
@@ -106,7 +106,7 @@ export function ThePile({ projects }: { projects: Project[] }) {
                   target="_blank"
                   rel="noopener noreferrer"
                   onClick={(e) => e.stopPropagation()}
-                  className="block text-center text-[9px] text-muted truncate hover:text-accent transition-colors"
+                  className="block text-center text-[11px] text-muted truncate hover:text-accent transition-colors"
                 >
                   @{project.x_handle}
                 </a>
@@ -120,8 +120,8 @@ export function ThePile({ projects }: { projects: Project[] }) {
                       : "text-muted border border-transparent group-hover:bg-accent/5 group-hover:text-accent group-hover:border-accent/15 active:bg-accent/15 active:text-accent"
                   }`}
                 >
-                  <span className={`text-[9px] transition-transform duration-200 ${hasVoted ? "scale-150 -translate-y-0.5" : ""}`}>▲</span>
-                  <span className="font-mono text-[10px] font-medium">{count}</span>
+                  <span className={`text-[11px] transition-transform duration-200 ${hasVoted ? "scale-150 -translate-y-0.5" : ""}`}>▲</span>
+                  <span className="font-mono text-[12px] font-medium">{count}</span>
                 </button>
               </div>
             );

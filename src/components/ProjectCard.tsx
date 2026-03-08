@@ -22,17 +22,17 @@ export function ProjectCard({ project, showUpvotes = true }: { project: Project;
       />
       <div className="flex-1 min-w-0">
         <div className="flex items-center gap-2">
-          <h3 className="text-sm font-medium text-foreground truncate group-hover:text-accent transition-colors">
+          <h3 className="text-[15px] font-medium text-foreground truncate group-hover:text-accent transition-colors">
             {project.name}
           </h3>
           <StatusBadge status={project.status} />
         </div>
-        <p className="text-xs text-muted">@{project.x_handle}</p>
+        <p className="text-sm text-muted">@{project.x_handle}</p>
       </div>
       {showUpvotes && (
         <div className="flex flex-col items-center px-2 py-0.5 text-center">
-          <span className="text-[10px] text-muted">▲</span>
-          <span className="text-xs font-medium text-foreground">{project.upvotes}</span>
+          <span className="text-[12px] text-muted">▲</span>
+          <span className="text-sm font-medium text-foreground">{project.upvotes}</span>
         </div>
       )}
     </a>

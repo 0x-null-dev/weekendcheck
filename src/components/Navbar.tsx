@@ -13,19 +13,19 @@ export function Navbar() {
         <div className="flex items-center gap-6">
           <Link
             href="/queue"
-            className="font-mono text-sm text-muted transition-colors hover:text-foreground"
+            className="font-mono text-[15px] text-muted transition-colors hover:text-foreground"
           >
             /queue
           </Link>
           <Link
             href="/checked"
-            className="font-mono text-sm text-muted transition-colors hover:text-foreground"
+            className="font-mono text-[15px] text-muted transition-colors hover:text-foreground"
           >
             /checked
           </Link>
           <Link
             href="/submit"
-            className="rounded-full border border-foreground bg-foreground px-4 py-1.5 text-sm font-medium text-background transition-colors hover:bg-transparent hover:text-foreground"
+            className="rounded-full border border-foreground bg-foreground px-4 py-1.5 text-[15px] font-medium text-background transition-colors hover:bg-transparent hover:text-foreground"
           >
             submit your project
           </Link>

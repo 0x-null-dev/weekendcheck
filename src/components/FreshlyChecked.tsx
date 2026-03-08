@@ -17,13 +17,13 @@ export function FreshlyChecked({ items }: { items: CheckedProjectWithReview[] })
         <div className="mb-6 flex items-end justify-between">
           <div>
             <h2 className="text-lg font-bold text-foreground">freshly checked</h2>
-            <p className="text-xs text-muted">
+            <p className="text-sm text-muted">
               projects we actually used and reviewed
             </p>
           </div>
           <Link
             href="/checked"
-            className="inline-flex items-center gap-1 rounded-full border border-border px-3 py-1 font-mono text-xs font-medium text-foreground transition-colors hover:bg-surface-hover"
+            className="inline-flex items-center gap-1 rounded-full border border-border px-3 py-1 font-mono text-sm font-medium text-foreground transition-colors hover:bg-surface-hover"
           >
             all reviews →
           </Link>
@@ -50,7 +50,7 @@ export function FreshlyChecked({ items }: { items: CheckedProjectWithReview[] })
                     href={project.url}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="text-sm font-bold text-foreground hover:text-accent transition-colors truncate block"
+                    className="text-[15px] font-bold text-foreground hover:text-accent transition-colors truncate block"
                   >
                     {project.name}
                   </a>
@@ -58,29 +58,29 @@ export function FreshlyChecked({ items }: { items: CheckedProjectWithReview[] })
                     href={`https://x.com/${project.x_handle}`}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="font-mono text-[11px] text-muted hover:text-accent transition-colors"
+                    className="font-mono text-[13px] text-muted hover:text-accent transition-colors"
                   >
                     @{project.x_handle}
                   </a>
                 </div>
                 <span className="flex items-center gap-1 text-green">
                   <span className="h-1.5 w-1.5 rounded-full bg-green" />
-                  <span className="text-[10px] font-medium">reviewed</span>
+                  <span className="text-[12px] font-medium">reviewed</span>
                 </span>
               </div>
 
               {/* Review snippet */}
-              <p className="text-sm text-muted leading-relaxed mb-4">
+              <p className="text-[15px] text-muted leading-relaxed mb-4">
                 &ldquo;{snippet}&rdquo;
               </p>
 
               {/* Footer */}
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
-                  <span className="font-mono text-[10px] text-muted">
+                  <span className="font-mono text-[12px] text-muted">
                     review #{review.review_number}
                   </span>
-                  <span className="font-mono text-[10px] text-muted">
+                  <span className="font-mono text-[12px] text-muted">
                     {new Date(review.created_at).toLocaleDateString("en-US", {
                       month: "short",
                       day: "numeric",
@@ -93,14 +93,14 @@ export function FreshlyChecked({ items }: { items: CheckedProjectWithReview[] })
                     target="_blank"
                     rel="noopener noreferrer"
                     onClick={(e) => e.stopPropagation()}
-                    className="flex items-center gap-1 rounded-sm border border-border px-2 py-0.5 text-[10px] font-medium text-muted transition-all hover:border-border-strong hover:text-foreground"
+                    className="flex items-center gap-1 rounded-sm border border-border px-2 py-0.5 text-[12px] font-medium text-muted transition-all hover:border-border-strong hover:text-foreground"
                   >
                     <svg width="10" height="10" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" /></svg>
                     share
                   </a>
                   <Link
                     href={`/project/${project.slug}`}
-                    className="rounded-sm bg-foreground px-2.5 py-0.5 text-[10px] font-medium text-background transition-colors hover:bg-foreground/80"
+                    className="rounded-sm bg-foreground px-2.5 py-0.5 text-[12px] font-medium text-background transition-colors hover:bg-foreground/80"
                   >
                     read review →
                   </Link>
