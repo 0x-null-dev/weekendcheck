@@ -17,8 +17,6 @@ export default async function QueuePage() {
     getAllProjects(),
     getCheckedProjects(),
   ]);
-  const sorted = [...queue].sort((a, b) => b.upvotes - a.upvotes);
-
   return (
     <div className="mx-auto max-w-5xl px-6 py-10">
       {/* Header */}
@@ -73,7 +71,7 @@ export default async function QueuePage() {
         </div>
       </div>
 
-      <QueueList projects={sorted} />
+      <QueueList projects={queue} />
     </div>
   );
 }

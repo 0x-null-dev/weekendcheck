@@ -9,11 +9,9 @@ export function QueueList({ projects }: { projects: Project[] }) {
 
   const { votes, voted, handleVote } = useVotes(initialVotes);
 
-  const sorted = [...projects].sort((a, b) => (votes[b.id] || 0) - (votes[a.id] || 0));
-
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
-      {sorted.map((project, i) => {
+      {projects.map((project, i) => {
         const rank = i + 1;
         const hasVoted = voted.has(project.id);
         const count = votes[project.id] || 0;

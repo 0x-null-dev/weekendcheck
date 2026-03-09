@@ -19,8 +19,7 @@ function getCardStyle(index: number) {
 }
 
 export function ThePile({ projects }: { projects: Project[] }) {
-  const sorted = [...projects].sort((a, b) => b.upvotes - a.upvotes);
-  const pile = sorted.slice(0, 24);
+  const pile = projects.slice(0, 24);
   const [hovered, setHovered] = useState<string | null>(null);
 
   const initialVotes: Record<string, number> = {};
@@ -123,6 +122,17 @@ export function ThePile({ projects }: { projects: Project[] }) {
             );
           })}
         </div>
+
+        {projects.length > 24 && (
+          <div className="mt-4 text-center">
+            <Link
+              href="/queue"
+              className="inline-flex items-center gap-1 rounded-full border border-border px-4 py-1.5 font-mono text-sm font-medium text-foreground transition-colors hover:bg-surface-hover"
+            >
+              view all {projects.length} projects →
+            </Link>
+          </div>
+        )}
       </div>
     </section>
   );
