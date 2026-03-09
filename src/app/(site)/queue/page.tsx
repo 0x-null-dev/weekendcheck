@@ -1,8 +1,15 @@
 export const dynamic = "force-dynamic";
 
+import type { Metadata } from "next";
 import { getQueueProjects, getAllProjects, getCheckedProjects } from "@/lib/db/queries";
 import { QueueList } from "./queue-list";
 import Link from "next/link";
+
+export const metadata: Metadata = {
+  title: "The Pile — Projects Waiting for Review",
+  description:
+    "Upvote the projects you want reviewed next. The community decides what gets checked every weekend.",
+};
 
 export default async function QueuePage() {
   const [queue, allProjects, checked] = await Promise.all([

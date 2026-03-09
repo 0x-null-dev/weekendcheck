@@ -1,7 +1,14 @@
 export const dynamic = "force-dynamic";
 
+import type { Metadata } from "next";
 import Link from "next/link";
 import { getAllProjects, getQueueProjects, getCheckedProjects } from "@/lib/db/queries";
+
+export const metadata: Metadata = {
+  title: "Submit Your Project",
+  description:
+    "Submit your side project or micro-SaaS for an honest review. No forms, no signups — just DM your link.",
+};
 
 export default async function SubmitPage() {
   const [allProjects, queue, checked] = await Promise.all([

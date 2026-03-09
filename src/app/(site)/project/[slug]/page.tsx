@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import {
@@ -7,6 +8,42 @@ import {
 } from "@/lib/db/queries";
 import { PendingReview } from "./pending-review";
 import { ReviewContent } from "./review-content";
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ slug: string }>;
+}): Promise<Metadata> {
+  const { slug } = await params;
+  const project = await getProjectBySlug(slug);
+  if (!project) return {};
+
+  const status =
+    project.status === "checked"
+      ? "Reviewed"
+      : project.status === "in_review"
+        ? "Currently Reviewing"
+        : "In Queue";
+
+  return {
+    title: `${project.name} — ${status}`,
+    description: project.description
+      ? project.description
+      : `${project.name} by @${project.x_handle}. ${status} on WeekendCheck.`,
+    openGraph: {
+      title: `${project.name} — ${status} | WeekendCheck`,
+      description: project.description
+        ? project.description
+        : `${project.name} by @${project.x_handle}. ${status} on WeekendCheck.`,
+    },
+    twitter: {
+      title: `${project.name} — ${status} | WeekendCheck`,
+      description: project.description
+        ? project.description
+        : `${project.name} by @${project.x_handle}. ${status} on WeekendCheck.`,
+    },
+  };
+}
 
 export default async function ProjectPage({
   params,

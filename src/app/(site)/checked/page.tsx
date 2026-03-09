@@ -1,7 +1,14 @@
 export const dynamic = "force-dynamic";
 
+import type { Metadata } from "next";
 import { getCheckedProjectsWithReviews } from "@/lib/db/queries";
 import Link from "next/link";
+
+export const metadata: Metadata = {
+  title: "Checked — Reviewed Projects",
+  description:
+    "Every project we've reviewed so far. Real feedback, real opinions, no sugar coating.",
+};
 
 export default async function CheckedPage() {
   const items = await getCheckedProjectsWithReviews();

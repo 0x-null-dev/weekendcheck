@@ -13,8 +13,43 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "WeekendCheck: Real feedback on early projects",
-  description: "Real feedback on early projects. Every week. Built by 0xNull.",
+  title: {
+    default: "WeekendCheck — Real feedback on early projects",
+    template: "%s | WeekendCheck",
+  },
+  description:
+    "Submit your project, get upvoted by the community, and receive an honest review every weekend. No sugar coating. Built by 0xNull.",
+  metadataBase: new URL("https://weekendcheck.dev"),
+  keywords: [
+    "project reviews",
+    "indie hacker",
+    "side project feedback",
+    "micro saas",
+    "weekend check",
+    "product review",
+    "startup feedback",
+  ],
+  authors: [{ name: "0xNull", url: "https://x.com/0x_null_dev" }],
+  creator: "0xNull",
+  openGraph: {
+    type: "website",
+    locale: "en_US",
+    siteName: "WeekendCheck",
+    title: "WeekendCheck — Real feedback on early projects",
+    description:
+      "Submit your project, get upvoted by the community, and receive an honest review every weekend. No sugar coating.",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "WeekendCheck — Real feedback on early projects",
+    description:
+      "Submit your project, get upvoted by the community, and receive an honest review every weekend. No sugar coating.",
+    creator: "@0x_null_dev",
+  },
+  icons: {
+    icon: "/icon.png",
+    apple: "/icon.png",
+  },
 };
 
 export default function RootLayout({
