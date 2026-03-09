@@ -77,6 +77,44 @@ const PROJECTS = [
   { name: "Elurance", x_handle: "hemantrajput114", url: "http://Elurance.com" },
   { name: "VibingRadar", x_handle: "vibingradar", url: "https://vibingradar.com" },
   { name: "YouScript", x_handle: "bhargavk_", url: "http://YouScript.Pro" },
+  // --- batch 2: from X post comments ---
+  { name: "Karmora", x_handle: "julezrz", url: "http://karmora.com" },
+  { name: "TinyClaw", x_handle: "warengonzaga", url: "http://tinyclaw.ai" },
+  { name: "Triggerfish", x_handle: "TriggerfishAI", url: "https://trigger.fish" },
+  { name: "Pardesco Studio", x_handle: "pardesco_", url: "https://studio.pardesco.com" },
+  { name: "Hot.tech", x_handle: "nirave", url: "http://hot.tech" },
+  { name: "Orvia", x_handle: "x_surajkr", url: "https://orvia.live" },
+  { name: "MirrorAI", x_handle: "TryItOnMirror", url: "https://mirrorai.cc" },
+  { name: "SuperGeo", x_handle: "youngbuffalo111", url: "https://supergeo.io" },
+  { name: "Founda", x_handle: "_beyond_logic", url: "https://tryfounda.com" },
+  { name: "Aximor", x_handle: "AakashM_25", url: "http://Aximor.ai" },
+  { name: "MarkFlow", x_handle: "OmarElhassani99", url: "http://markflowai.com" },
+  { name: "SyncSellr", x_handle: "1mthisyear", url: "http://syncsellr.com" },
+  { name: "Termino", x_handle: "walkojas", url: "http://termino.walkosystems.com" },
+  { name: "InterviewTrackr", x_handle: "cya826787694811", url: "https://interviewtrackr.com" },
+  { name: "StrideAI", x_handle: "hieuspringle", url: "http://getstrideai.com" },
+  { name: "DocuForge", x_handle: "NalaLockspur", url: "http://Docuforge.io" },
+  { name: "Finly", x_handle: "sajjadahammed", url: "https://finlyai.vercel.app" },
+  { name: "TRIIT", x_handle: "yoiqino", url: "http://TRIIT.app" },
+  { name: "ColorGen", x_handle: "ColorGenAi", url: "http://colorgen.ai" },
+  { name: "ExpenseNest", x_handle: "its_b_pawan", url: "http://tryexpensenest.app" },
+  { name: "Brevoir", x_handle: "nabuhad", url: "https://brevoir.com" },
+  { name: "BurnArena", x_handle: "burnarenaapp", url: "https://burnarena.app" },
+  { name: "RepoRoast", x_handle: "prateekhacks", url: "http://reporoast.prateekhacks.in" },
+  { name: "Admit4You", x_handle: "admit4you", url: "http://admit4you.com" },
+  { name: "SyntropyAI", x_handle: "hossamel77", url: "http://syntropyai.app" },
+  { name: "ClawInst", x_handle: "Rae_shin88", url: "http://clawinst.com" },
+  { name: "Nacian", x_handle: "0xdanielvigo", url: "https://nacian.app" },
+  { name: "Soma", x_handle: "SachMoyne", url: "http://soma-edu.com" },
+  { name: "TetherChat", x_handle: "SmallFryAI", url: "https://tetherchat.io" },
+  { name: "Gridly", x_handle: "AdiKodez", url: "http://gridly.akoder.xyz" },
+  { name: "Hexpandify", x_handle: "ZahrDaniel", url: "https://app.hexpandify.com" },
+  { name: "LLMSearchInsight", x_handle: "UserSimLab", url: "http://llmsearchinsight.com" },
+  { name: "Overspend", x_handle: "stevesolojourn", url: "http://Overspend.me" },
+  { name: "SnipAI", x_handle: "Emmanuel0808177", url: "https://getsnipai.vercel.app" },
+  { name: "InvoiceQuick", x_handle: "IftikharSherwa2", url: "https://invoicequick.app" },
+  { name: "Preto", x_handle: "gauravdagde", url: "https://preto.ai" },
+  { name: "StratLab", x_handle: "vish8287", url: "https://stratlab.in" },
 ];
 
 function logoUrl(url: string): string {
@@ -90,6 +128,7 @@ function logoUrl(url: string): string {
 
 async function seed() {
   console.log("Wiping database...");
+  await db.delete(schema.votes);
   await db.delete(schema.reviews);
   await db.delete(schema.projects);
 
