@@ -1,21 +1,13 @@
 "use client";
 
 import { Project } from "@/lib/types";
-import { useState } from "react";
+import { useVotes } from "@/lib/use-votes";
 
 export function QueueList({ projects }: { projects: Project[] }) {
-  const [votes, setVotes] = useState<Record<string, number>>(() => {
-    const init: Record<string, number> = {};
-    projects.forEach((p) => { init[p.id] = p.upvotes; });
-    return init;
-  });
-  const [voted, setVoted] = useState<Set<string>>(new Set());
+  const initialVotes: Record<string, number> = {};
+  projects.forEach((p) => { initialVotes[p.id] = p.upvotes; });
 
-  function handleVote(projectId: string) {
-    if (voted.has(projectId)) return;
-    setVotes((prev) => ({ ...prev, [projectId]: (prev[projectId] || 0) + 1 }));
-    setVoted((prev) => new Set(prev).add(projectId));
-  }
+  const { votes, voted, handleVote } = useVotes(initialVotes);
 
   const sorted = [...projects].sort((a, b) => (votes[b.id] || 0) - (votes[a.id] || 0));
 

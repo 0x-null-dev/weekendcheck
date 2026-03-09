@@ -3,6 +3,7 @@
 import { Project } from "@/lib/types";
 import Link from "next/link";
 import { useState } from "react";
+import { useVotes } from "@/lib/use-votes";
 
 function seededRandom(seed: number) {
   const x = Math.sin(seed * 9301 + 49297) * 233280;
@@ -21,20 +22,11 @@ export function ThePile({ projects }: { projects: Project[] }) {
   const sorted = [...projects].sort((a, b) => b.upvotes - a.upvotes);
   const pile = sorted.slice(0, 24);
   const [hovered, setHovered] = useState<string | null>(null);
-  const [votes, setVotes] = useState<Record<string, number>>(() => {
-    const init: Record<string, number> = {};
-    pile.forEach((p) => { init[p.id] = p.upvotes; });
-    return init;
-  });
-  const [voted, setVoted] = useState<Set<string>>(new Set());
 
-  function handleVote(e: React.MouseEvent, projectId: string) {
-    e.preventDefault();
-    e.stopPropagation();
-    if (voted.has(projectId)) return;
-    setVotes((prev) => ({ ...prev, [projectId]: (prev[projectId] || 0) + 1 }));
-    setVoted((prev) => new Set(prev).add(projectId));
-  }
+  const initialVotes: Record<string, number> = {};
+  pile.forEach((p) => { initialVotes[p.id] = p.upvotes; });
+
+  const { votes, voted, handleVote } = useVotes(initialVotes);
 
   return (
     <section className="py-10 relative z-0">
@@ -113,7 +105,11 @@ export function ThePile({ projects }: { projects: Project[] }) {
 
                 {/* Clickable upvote */}
                 <button
-                  onClick={(e) => handleVote(e, project.id)}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    handleVote(project.id);
+                  }}
                   className={`mt-1.5 flex w-full items-center justify-center gap-0.5 rounded-sm py-0.5 transition-all active:scale-90 ${
                     hasVoted
                       ? "bg-accent/10 text-accent border border-accent/20"

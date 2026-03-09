@@ -6,6 +6,10 @@ const SECRET = new TextEncoder().encode(
   process.env.JWT_SECRET || "fallback-secret-change-me"
 );
 
+function generateId() {
+  return crypto.randomUUID();
+}
+
 export async function middleware(request: NextRequest) {
   // Only protect /admin routes (not /admin/login)
   if (
@@ -43,9 +47,23 @@ export async function middleware(request: NextRequest) {
     }
   }
 
-  return NextResponse.next();
+  // Set voter cookie on all public pages and vote API
+  const response = NextResponse.next();
+  const voterCookie = request.cookies.get("wc_voter")?.value;
+
+  if (!voterCookie) {
+    response.cookies.set("wc_voter", generateId(), {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "lax",
+      maxAge: 60 * 60 * 24 * 365 * 2, // 2 years
+      path: "/",
+    });
+  }
+
+  return response;
 }
 
 export const config = {
-  matcher: ["/admin/:path*", "/api/admin/:path*"],
+  matcher: ["/admin/:path*", "/api/admin/:path*", "/", "/queue", "/checked", "/submit", "/project/:path*", "/api/vote"],
 };

@@ -5,6 +5,7 @@ import {
   integer,
   boolean,
   pgEnum,
+  uniqueIndex,
 } from "drizzle-orm/pg-core";
 
 export const projectStatusEnum = pgEnum("project_status", [
@@ -37,6 +38,24 @@ export const projects = pgTable("projects", {
   createdAt: timestamp("created_at").notNull().defaultNow(),
   reviewedAt: timestamp("reviewed_at"),
 });
+
+export const votes = pgTable(
+  "votes",
+  {
+    id: text("id").primaryKey(),
+    projectId: text("project_id")
+      .notNull()
+      .references(() => projects.id, { onDelete: "cascade" }),
+    voterId: text("voter_id").notNull(),
+    fingerprint: text("fingerprint").notNull(),
+    ip: text("ip").notNull(),
+    createdAt: timestamp("created_at").notNull().defaultNow(),
+  },
+  (table) => [
+    uniqueIndex("votes_voter_project_idx").on(table.voterId, table.projectId),
+    uniqueIndex("votes_fp_project_idx").on(table.fingerprint, table.projectId),
+  ]
+);
 
 export const reviews = pgTable("reviews", {
   id: text("id").primaryKey(),
