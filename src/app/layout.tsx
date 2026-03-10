@@ -19,7 +19,7 @@ export const metadata: Metadata = {
   },
   description:
     "Submit your project, get upvoted by the community, and receive an honest review every weekend. No sugar coating. Built by 0xNull.",
-  metadataBase: new URL("https://weekendcheck.com"),
+  metadataBase: new URL("https://www.weekendcheck.com"),
   keywords: [
     "project reviews",
     "indie hacker",
