@@ -41,7 +41,7 @@ export function ThePile({ projects }: { projects: Project[] }) {
             href="/queue"
             className="inline-flex items-center gap-1 rounded-full border border-border px-3 py-1 font-mono text-sm font-medium text-foreground transition-colors hover:bg-surface-hover"
           >
-            view all {projects.length} projects →
+            view all →
           </Link>
         </div>
 
@@ -129,7 +129,7 @@ export function ThePile({ projects }: { projects: Project[] }) {
               href="/queue"
               className="inline-flex items-center gap-1 rounded-full border border-border px-4 py-1.5 font-mono text-sm font-medium text-foreground transition-colors hover:bg-surface-hover"
             >
-              view all →
+              view all {projects.length} projects →
             </Link>
           </div>
         )}
