@@ -38,7 +38,7 @@ export const metadata: Metadata = {
     title: "WeekendCheck — Real feedback on early projects",
     description:
       "Submit your project, get upvoted by the community, and receive an honest review every weekend. No sugar coating.",
-    images: [{ url: "/og.png", width: 1200, height: 630, alt: "WeekendCheck — Real feedback on early projects" }],
+    images: [{ url: "/og.jpg", width: 1200, height: 630, type: "image/jpeg", alt: "WeekendCheck — Real feedback on early projects" }],
   },
   twitter: {
     card: "summary_large_image",
@@ -46,7 +46,7 @@ export const metadata: Metadata = {
     description:
       "Submit your project, get upvoted by the community, and receive an honest review every weekend. No sugar coating.",
     creator: "@0x_null_dev",
-    images: ["/og.png"],
+    images: ["/og.jpg"],
   },
   icons: {
     icon: "/icon.png",
