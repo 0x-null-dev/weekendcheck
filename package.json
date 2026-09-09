@@ -1,33 +1,41 @@
 {
-  "name": "app",
-  "version": "0.1.0",
+  "name": "weekendcheck",
+  "version": "1.0.0",
   "private": true,
   "scripts": {
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "test": "tsx scripts/test-postgres.ts unit",
+    "scheduler": "tsx scripts/x-scheduler.ts",
+    "db:migrate": "tsx scripts/db-migrate.ts",
+    "db:seed": "tsx scripts/db-seed.ts",
+    "admin:set-password": "tsx scripts/admin-password.ts",
+    "storage:init": "tsx scripts/storage-init.ts",
+    "test:browser": "tsx scripts/test-postgres.ts browser"
   },
   "dependencies": {
-    "@dnd-kit/core": "^6.3.1",
-    "@dnd-kit/sortable": "^10.0.0",
-    "@dnd-kit/utilities": "^3.2.2",
-    "drizzle-orm": "^0.45.1",
-    "jose": "^6.2.0",
-    "next": "16.1.6",
-    "postgres": "^3.4.8",
+    "@next/env": "^16.3.4",
+    "@supabase/supabase-js": "^2.116.0",
+    "next": "^16.3.4",
+    "pg": "^8.23.0",
     "react": "19.2.3",
-    "react-dom": "19.2.3"
+    "react-dom": "19.2.3",
+    "tsx": "^4.23.13",
+    "twitter-api-v2": "^1.29.1",
+    "twitter-text": "^3.1.0"
   },
   "devDependencies": {
-    "@tailwindcss/postcss": "^4",
+    "@playwright/test": "^1.63.0",
     "@types/node": "^20",
+    "@types/pg": "^8.23.1",
     "@types/react": "^19",
     "@types/react-dom": "^19",
-    "drizzle-kit": "^0.31.9",
+    "@types/twitter-text": "^3.1.10",
+    "embedded-postgres": "^18.4.0-beta.17",
     "eslint": "^9",
-    "eslint-config-next": "16.1.6",
-    "tailwindcss": "^4",
+    "eslint-config-next": "^16.3.4",
     "typescript": "^5"
   }
 }

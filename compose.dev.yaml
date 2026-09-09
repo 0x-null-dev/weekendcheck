@@ -1,0 +1,13 @@
+services:
+  db:
+    image: postgres:18-bookworm
+    ports:
+      - "127.0.0.1:5433:5432"
+    environment:
+      POSTGRES_USER: weekendcheck
+      POSTGRES_PASSWORD: weekendcheck_dev
+      POSTGRES_DB: weekendcheck
+    volumes:
+      - development_database:/var/lib/postgresql
+volumes:
+  development_database:
