@@ -3,7 +3,7 @@ import Image from "next/image";
 import { defaultSettings, type Settings } from "@/lib/editorial";
 
 export function Mark() {
-  return <Link href="/" className="mark alex-mark" aria-label="0xAlex Tries home"><Image src="/0x-alex.png" width={42} height={42} alt="Pixel-art portrait of Alex" priority /><i><b>0xAlex</b><br />Tries</i></Link>;
+  return <Link href="/" className="mark alex-mark" aria-label="0xAlex Check home"><Image src="/0x-alex.png" width={42} height={42} alt="Pixel-art portrait of Alex" priority /><i><b>0xAlex</b><br />Check</i></Link>;
 }
 
 export function SiteHeader({ settings = defaultSettings }: { settings?: Settings }) {
@@ -13,5 +13,5 @@ export function SiteHeader({ settings = defaultSettings }: { settings?: Settings
 
 export function SiteFooter({ settings = defaultSettings }: { settings?: Settings }) {
   const handle = settings.handle === "0xAlex_dev" ? "0xAlex" : settings.handle || "0xAlex";
-  return <footer className="alex-footer"><p><b>0xAlex Tries</b> — free, practical feedback for indie builders.</p><a href={`https://x.com/${handle}`} target="_blank" rel="noreferrer">@0xAlex on X ↗</a></footer>;
+  return <footer className="alex-footer"><p><b>0xAlex Check</b> — free, practical feedback for indie builders.</p><a href={`https://x.com/${handle}`} target="_blank" rel="noreferrer">@0xAlex on X ↗</a></footer>;
 }
