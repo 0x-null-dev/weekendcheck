@@ -1,14 +1,17 @@
 import Link from "next/link";
+import Image from "next/image";
 import { defaultSettings, type Settings } from "@/lib/editorial";
 
 export function Mark() {
-  return <Link href="/" className="mark" aria-label="WeekendCheck home"><span>W</span><i>Weekend<br />Check</i></Link>;
+  return <Link href="/" className="mark alex-mark" aria-label="0xAlex Tries home"><Image src="/0x-alex.png" width={42} height={42} alt="Pixel-art portrait of Alex" priority /><i><b>0xAlex</b><br />Tries</i></Link>;
 }
 
 export function SiteHeader({ settings = defaultSettings }: { settings?: Settings }) {
-  return <header className="site-header"><Mark /><nav><Link href="/#weeks">Weeks</Link><Link href="/reviews">Reviews</Link><a href={`https://x.com/${settings.handle}`} target="_blank" rel="noreferrer">Follow on X ↗</a></nav></header>;
+  const handle = settings.handle === "0xAlex_dev" ? "0xAlex" : settings.handle || "0xAlex";
+  return <header className="site-header alex-header"><Mark /><nav><Link href="/#how-it-works">How it works</Link><Link href="/#tries">Apps I tried</Link><a className="header-x" href={`https://x.com/${handle}`} target="_blank" rel="noreferrer">Follow @0xAlex ↗</a></nav></header>;
 }
 
 export function SiteFooter({ settings = defaultSettings }: { settings?: Settings }) {
-  return <footer style={{ display: "flex", justifyContent: "center", alignItems: "center", textAlign: "center" }}><p>Built with <span role="img" aria-label="love" style={{ color: "#dc2626" }}>♥</span> by <a href={`https://x.com/${settings.handle}`} target="_blank" rel="noreferrer">{settings.name}</a></p></footer>;
+  const handle = settings.handle === "0xAlex_dev" ? "0xAlex" : settings.handle || "0xAlex";
+  return <footer className="alex-footer"><p><b>0xAlex Tries</b> — free, practical feedback for indie builders.</p><a href={`https://x.com/${handle}`} target="_blank" rel="noreferrer">@0xAlex on X ↗</a></footer>;
 }

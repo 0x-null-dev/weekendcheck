@@ -2,8 +2,8 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: { default: "WeekendCheck — Independent apps, examined weekly", template: "%s · WeekendCheck" },
-  description: "A weekly editorial review desk for small independent apps found on X.",
+  title: { default: "0xAlex Tries — Free feedback for indie apps", template: "%s · 0xAlex Tries" },
+  description: "Alex tries indie apps and gives free, practical feedback to the people building them.",
 };
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
