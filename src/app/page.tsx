@@ -9,7 +9,7 @@ export default async function Home({ searchParams }: { searchParams: Promise<{ w
   const requestedWeek = (await searchParams).week;
   const picked = currentWeek?.entries.filter(p => p.track === "quick" || p.track === "deep") || [];
   const reviewedCount = picked.filter(p => p.reviewed).length;
-  const profile = `https://x.com/${settings.handle === "0xAlex_dev" ? "0xAlex" : settings.handle || "0xAlex"}`;
+  const profile = `https://x.com/${settings.handle || "0xAlex_dev"}`;
   return <><SiteHeader settings={settings} /><main className="alex-home">
     <section className="alex-hero">
       <div className="alex-hero-copy">

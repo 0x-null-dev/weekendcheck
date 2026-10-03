@@ -7,11 +7,11 @@ export function Mark() {
 }
 
 export function SiteHeader({ settings = defaultSettings }: { settings?: Settings }) {
-  const handle = settings.handle === "0xAlex_dev" ? "0xAlex" : settings.handle || "0xAlex";
+  const handle = settings.handle || "0xAlex_dev";
   return <header className="site-header alex-header"><Mark /><nav><Link href="/#tries">Projects</Link><a className="header-x" href={`https://x.com/${handle}`} target="_blank" rel="noreferrer">X ↗</a></nav></header>;
 }
 
 export function SiteFooter({ settings = defaultSettings }: { settings?: Settings }) {
-  const handle = settings.handle === "0xAlex_dev" ? "0xAlex" : settings.handle || "0xAlex";
+  const handle = settings.handle || "0xAlex_dev";
   return <footer className="alex-footer"><p>Built with <span role="img" aria-label="love">♥</span> by <a href={`https://x.com/${handle}`} target="_blank" rel="noreferrer">0xAlex</a></p></footer>;
 }

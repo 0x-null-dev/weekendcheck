@@ -33,7 +33,7 @@ export type XPost = {
 export type EditorialState = {
   version: 1; revision: number; projects: Product[]; weeks: Week[]; reviews: Review[]; settings: Settings; xPosts: XPost[];
 };
-export const defaultSettings: Settings = { name: "Alex", handle: "0xAlex", avatarUrl: "/0x-alex.png", siteUrl: "https://0xalexcheck.app", quickSlots: 5, deepSlots: 2 };
+export const defaultSettings: Settings = { name: "Alex", handle: "0xAlex_dev", avatarUrl: "/0x-alex.png", siteUrl: "https://0xalexcheck.app", quickSlots: 5, deepSlots: 2 };
 export type Candidate = { name: string; url: string; handle: string; description: string; source: string };
 export const isSelected = (track: Track): track is Kind => track === "quick" || track === "deep";
 export function liveVersion(review: Review, now = Date.now()): ReviewVersion | null {
