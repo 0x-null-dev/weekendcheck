@@ -25,6 +25,6 @@ export default async function Home({ searchParams }: { searchParams: Promise<{ w
       </div>
     </section>
 
-    <section id="tries" className="alex-apps"><div className="alex-apps-heading"><p className="alex-kicker">WHAT I&apos;VE ACTUALLY TRIED</p><h2>Projects I&apos;ve spent time with.</h2><p>{picked.length ? `${reviewedCount} of ${picked.length} selected projects have a published review.` : "Nothing published yet. When I have something useful to say, it will show up here."}</p></div><WeekBrowser weeks={weeks} initialWeek={requestedWeek || currentWeek?.slug} /></section>
+    <section id="tries" className="alex-apps"><div className="alex-apps-heading"><p className="alex-kicker">WEEKLY CHECKS</p><h2>What I checked, week by week.</h2><p>{picked.length ? `${reviewedCount} of ${picked.length} projects from this week have a published review.` : "I add the projects I checked each week. Only some become reviews."}</p></div>{weeks.length ? <WeekBrowser weeks={weeks} initialWeek={requestedWeek || currentWeek?.slug} /> : <p className="alex-empty">No weekly checks have been published yet.</p>}</section>
   </main><SiteFooter settings={settings} /></>;
 }
