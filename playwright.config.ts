@@ -10,6 +10,6 @@ export default defineConfig({
     command: "npm run start -- --port 3108",
     port: 3108,
     reuseExistingServer: false,
-    env: { DATABASE_URL: process.env.WEEKENDCHECK_TEST_DATABASE === "true" ? process.env.DATABASE_URL! : "", APP_URL: "http://localhost:3108", MEDIA_STORAGE: "local", WEEKENDCHECK_DATA_DIR: mkdtempSync(path.join(tmpdir(), "weekendcheck-browser-")), X_BEARER_TOKEN: "test-import-token", X_POSTING_ENABLED: "false", X_API_KEY: "", X_API_SECRET: "", X_ACCESS_TOKEN: "", X_ACCESS_TOKEN_SECRET: "" },
+    env: { DATABASE_URL: process.env.WEEKENDCHECK_TEST_DATABASE === "true" ? process.env.DATABASE_URL! : "", APP_URL: "http://localhost:3108", MEDIA_STORAGE: "local", WEEKENDCHECK_DATA_DIR: mkdtempSync(path.join(tmpdir(), "weekendcheck-browser-")), X_BEARER_TOKEN: "test-import-token", X_POSTING_ENABLED: "false", X_API_KEY: "", X_API_SECRET: "", X_ACCESS_TOKEN: "", X_ACCESS_TOKEN_SECRET: "", CRON_SECRET: "browser-test-cron-secret-at-least-32-characters", VERCEL_ENV: "production" },
   },
 });

@@ -29,6 +29,7 @@ export type XPost = {
   status: "draft" | "scheduled" | "publishing" | "published" | "failed" | "attention" | "cancelled";
   scheduledAt: string | null; updatedAt: string; publishedIds: string[];
   xPostUrl: string; error: string;
+  uploadedMedia?: { postIndex: number; ids: string[]; createdAt: string };
 };
 export type EditorialState = {
   version: 1; revision: number; projects: Product[]; weeks: Week[]; reviews: Review[]; settings: Settings; xPosts: XPost[];

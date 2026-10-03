@@ -32,6 +32,16 @@ test("cross-origin sign-in is rejected", async ({ request }) => {
   expect((await request.post("/api/admin/login", { headers: { Origin: "https://evil.example" }, data: { password: "browser-admin-test-password" } })).status()).toBe(403);
 });
 
+test("scheduled endpoint requires its own secret, not an admin session", async ({ request }) => {
+  for (const method of ["get", "post"] as const) {
+    expect((await request[method]("/api/cron/x")).status()).toBe(401);
+    expect((await request[method]("/api/cron/x", { headers: { Authorization: "Bearer incorrect" } })).status()).toBe(401);
+    const response = await request[method]("/api/cron/x", { headers: { Authorization: "Bearer browser-test-cron-secret-at-least-32-characters" } });
+    expect(response.status()).toBe(503); // Test server explicitly disables X posting.
+    expect(response.headers()["cache-control"]).toContain("no-store");
+  }
+});
+
 test("uploaded media stays private until published and supports byte ranges", async ({ browser }) => {
   const admin = await browser.newContext({ storageState: process.env.WEEKENDCHECK_TEST_AUTH });
   const anonymous = await browser.newContext({ storageState: { cookies: [], origins: [] } });

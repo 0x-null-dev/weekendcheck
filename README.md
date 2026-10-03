@@ -88,17 +88,17 @@ Recent search is limited to the last seven days and your API account's access/us
 
 ### Automatic posting
 
-Configure `X_API_KEY`, `X_API_SECRET`, `X_ACCESS_TOKEN`, and `X_ACCESS_TOKEN_SECRET` with user-context Read and Write permission. Set `X_POSTING_ENABLED=true`, then run a separate always-on worker:
+Configure `X_API_KEY`, `X_API_SECRET`, `X_ACCESS_TOKEN`, and `X_ACCESS_TOKEN_SECRET` with OAuth 1.0a user-context Read and Write permission. Set `X_POSTING_ENABLED=true`. For Vercel + Supabase, use the scheduled endpoint setup below. On an always-on server, the original worker is also available:
 
 ```bash
 npm run scheduler
 ```
 
-This command **sends due posts to X**. The worker and web app must use the same database and media storage. The worker verifies that the connected X account matches the handle in Settings. Its heartbeat is shared through Postgres, not a local file.
+Both the worker and scheduled endpoint **send due posts to X**. They use the web app's database and media storage, verify that the connected X account matches the handle in Settings, and record a heartbeat in Postgres.
 
 Standard 280-character weighted X posts, threads, images and MP4 uploads are supported. Use up to four still images (5 MB each), or one GIF (15 MB) / MP4 (50 MB). External media URLs and WebM are website-only. X may reject unsupported codecs/durations.
 
-Claims and individual receipts persist in the database. Definite failures can be rescheduled; uncertain sends or partial threads stop for manual inspection and are never automatically retried. Check X, finish any missing replies manually, and use Mark as published with the actual URL. Schedules missed by more than 15 minutes are held rather than posted unexpectedly late. Interrupted publishing is flagged after 20 minutes on the next worker run.
+Claims and individual receipts persist in the database. Long threads can yield between confirmed posts and continue on the next scheduled request, using the saved reply IDs. Definite failures can be rescheduled; uncertain sends or failures partway through a thread stop for manual inspection and are never automatically retried. Check X, finish any missing replies manually, and use Mark as published with the actual URL. Schedules not started within 15 minutes are held rather than posted unexpectedly late. Interrupted publishing is flagged after 20 minutes on the next scheduler run.
 
 No real X posts are sent by automated tests.
 
@@ -116,7 +116,9 @@ Set these variables in Vercel's project settings for the Production environment,
 | `SUPABASE_URL` | Your Supabase project URL. |
 | `SUPABASE_SERVICE_ROLE_KEY` | Server-only service role key; never prefix it with `NEXT_PUBLIC_`. |
 | `SUPABASE_STORAGE_BUCKET` | `weekendcheck-media` (or your chosen private bucket). |
-| `X_POSTING_ENABLED` | `false` until a posting worker or serverless scheduler is configured. |
+| `X_POSTING_ENABLED` | `true` to enable automatic posting after configuring the scheduled trigger below. |
+| `X_API_KEY`, `X_API_SECRET`, `X_ACCESS_TOKEN`, `X_ACCESS_TOKEN_SECRET` | OAuth 1.0a credentials for the X account in Admin Settings, with Read and Write permission. |
+| `CRON_SECRET` | A fresh random secret of at least 32 characters, shared only with Supabase Vault. |
 
 Add `X_BEARER_TOKEN` only if using the X reply importer. Add `DATABASE_SSL_CA` if your database connection requires a supplied root certificate. Do not copy production credentials to untrusted preview deployments.
 
@@ -131,7 +133,21 @@ These commands create the app schema, initial admin account, and private media b
 
 After redeploying, check `/api/health` and sign in at `/login`. A successful build alone does not prove the remote database has been initialized.
 
-**Current deployment limitations:** the included X scheduler is a long-running process and does not run automatically on Vercel. It still needs a serverless scheduling adaptation (or a separately hosted worker). Media currently passes through the app's upload endpoint; Vercel's 4.5 MB request limit means large uploads need direct signed Supabase uploads before they will work. See [Vercel function limits](https://vercel.com/docs/functions/limitations) and [Supabase connection guidance](https://supabase.com/docs/guides/database/connecting-to-postgres).
+### Enable automatic X posting without another service
+
+Vercel runs `/api/cron/x` as a Node.js function; Supabase Cron calls it once a minute. There is no permanent server to start and the browser can be closed. Supabase Cron is used because [Vercel Hobby cron jobs run only once daily](https://vercel.com/docs/cron-jobs/usage-and-pricing).
+
+1. Enable **Fluid compute** in Vercel project settings so the function supports its configured 300-second maximum. See [Vercel function duration](https://vercel.com/docs/functions/configuring-functions/duration).
+2. Generate a new secret locally with `openssl rand -hex 32`. Put it in Vercel **Production** environment variables as `CRON_SECRET`; keep the X credentials and `X_POSTING_ENABLED=true` there too. Redeploy this version of the app.
+3. In Supabase **Vault**, create `weekendcheck_cron_secret` with that exact secret and `weekendcheck_app_url` with your canonical production origin (same as `APP_URL`, such as `https://your-site.com`). Use the final HTTPS origin so the cron request does not redirect.
+4. Run [scripts/supabase-x-cron.sql](scripts/supabase-x-cron.sql) in Supabase SQL Editor. It enables `pg_cron`/`pg_net` and creates or updates the `weekendcheck-x-posts` job. The SQL reads the bearer secret from Vault; it contains no credentials. See [Supabase scheduling](https://supabase.com/docs/guides/functions/schedule-functions).
+5. After a minute, Admin → Schedule should show **X scheduler is active**. The heartbeat means the trigger reached the app, not that X has accepted your credentials; account verification happens when a post is due. Check Vercel function logs and `net._http_response` for HTTP failures. Supabase cron history alone only confirms that the HTTP request was queued.
+
+The endpoint rejects missing/incorrect secrets and Vercel preview deployments. Each invocation processes at most ten threads within a time budget; concurrent invocations cannot claim the same thread. Threads may continue across ticks, and each confirmed reply is recorded before yielding. A hard timeout or uncertain X response still stops automatic retries. Start times are approximate, normally the next minute's tick, and backlog/platform delays can increase that. No `vercel.json` cron entry or extra hosting provider is required. Disable any old always-on worker once using Supabase Cron.
+
+If Vercel Deployment Protection covers your production domain, allow the scheduled request to reach the endpoint using Vercel's protection-bypass mechanism; the endpoint still requires `CRON_SECRET`. Do not disable the endpoint's authorization.
+
+**Remaining media limitation:** uploads currently pass through the app endpoint; Vercel's 4.5 MB request limit means large uploads need direct signed Supabase uploads before they will work. See [Vercel function limits](https://vercel.com/docs/functions/limitations).
 
 ## Deploy to an always-on server (alternative)
 
@@ -148,7 +164,7 @@ docker compose --profile scheduler up -d scheduler
 
 The containers run as a non-root user. Local media, if selected, is stored in a shared named volume; Supabase Storage does not require shared local files. Migrations are explicit and do not run on every startup.
 
-`/api/health` checks database availability without exposing connection details. Web and worker processes can be hosted separately using the same environment. An always-on worker is still required for automatic X posting; a serverless web deployment alone does not run it. Serverless request-size limits may also require direct signed media uploads.
+`/api/health` checks database availability without exposing connection details. Automatic X posting requires either the Supabase Cron trigger above or the original always-on worker. Serverless request-size limits may also require direct signed media uploads.
 
 A hosting destination, HTTPS/domain configuration, and actual Supabase credentials must be supplied before a remote deployment can be completed.
 

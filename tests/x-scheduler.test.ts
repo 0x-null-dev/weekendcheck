@@ -103,3 +103,67 @@ test("concurrent workers cannot send the same scheduled thread twice", async () 
   assert.equal(calls, 2);
   assert.equal((await readState()).xPosts[0].status, "published");
 }));
+
+test("serverless ticks yield between confirmed sends and resume without repeating posts", async () => stored(async () => {
+  await queue();
+  const calls: (string | undefined)[] = [];
+  let deadline = Date.now() + 240000;
+  const publisher = fakePublisher();
+  publisher.send = async (_, __, parent) => {
+    calls.push(parent);
+    deadline = 0;
+    return String(100 + calls.length);
+  };
+  // A getter simulates running out of the invocation budget after one confirmed send.
+  const options = { get deadline() { return deadline; } };
+  assert.equal(await dispatchDue(publisher, Date.now(), options), "yielded");
+  const waiting = (await readState()).xPosts[0];
+  assert.equal(waiting.status, "scheduled");
+  assert.deepEqual(waiting.publishedIds, ["101"]);
+  await Promise.all([dispatchDue(publisher), dispatchDue(publisher)]);
+  assert.deepEqual(calls, [undefined, "101"]);
+  assert.equal((await readState()).xPosts[0].status, "published");
+}));
+
+test("a tick with no time left releases its claim without sending", async () => stored(async () => {
+  await queue();
+  const publisher = fakePublisher();
+  publisher.verify = publisher.send = async () => { throw new Error("Must not contact X"); };
+  assert.equal(await dispatchDue(publisher, Date.now(), { deadline: 0 }), "yielded");
+  const waiting = (await readState()).xPosts[0];
+  assert.equal(waiting.status, "scheduled");
+  assert.deepEqual(waiting.publishedIds, []);
+}));
+
+test("slow media uploads resume from their checkpoint instead of starting over", async () => stored(async () => {
+  await queue();
+  const assets = ["1", "2"].map(id => ({ id, type: "image" as const, alt: "", url: `/api/media/11111111-1111-1111-1111-11111111111${id}.png` }));
+  await changeState(null, state => { state.xPosts[0].posts[0].assets = assets; });
+  let deadline = Date.now() + 240000;
+  const uploaded: string[] = [];
+  const publisher = fakePublisher();
+  publisher.upload = async asset => { uploaded.push(asset.id); deadline = 0; return `media-${asset.id}`; };
+  assert.equal(await dispatchDue(publisher, Date.now(), { get deadline() { return deadline; } }), "yielded");
+  assert.deepEqual((await readState()).xPosts[0].uploadedMedia?.ids, ["media-1"]);
+  const sent: string[][] = [];
+  publisher.send = async (_, ids) => { sent.push(ids); return String(100 + sent.length); };
+  await dispatchDue(publisher);
+  assert.deepEqual(uploaded, ["1", "2"]);
+  assert.deepEqual(sent, [["media-1", "media-2"], []]);
+  const post = (await readState()).xPosts[0];
+  assert.equal(post.status, "published"); assert.equal(post.uploadedMedia, undefined);
+}));
+
+test("resumed threads stop on uncertainty and can be cancelled between ticks", async () => stored(async () => {
+  const id = await queue();
+  await changeState(null, state => { state.xPosts[0].publishedIds = ["101"]; });
+  let calls = 0;
+  const publisher = fakePublisher();
+  publisher.send = async (_, __, parent) => { calls++; assert.equal(parent, "101"); throw new XSendError("Unknown receipt", true); };
+  await dispatchDue(publisher); await dispatchDue(publisher);
+  const state = await readState();
+  assert.equal(calls, 1); assert.equal(state.xPosts[0].status, "attention");
+  await changeState(null, state => { state.xPosts[0].status = "scheduled"; applyAction(state, { action: "cancelXPost", postId: id }); });
+  await dispatchDue(publisher);
+  assert.equal(calls, 1); assert.equal((await readState()).xPosts[0].status, "cancelled");
+}));

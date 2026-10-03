@@ -127,7 +127,7 @@ export function applyAction(state: EditorialState, command: unknown): Record<str
     }
     const id = existing?.id || randomUUID();
     const record = { id, reviewId: existing?.reviewId || null, title, posts: content, scheduledAt, updatedAt: new Date().toISOString(), status: schedule ? "scheduled" as const : "draft" as const, publishedIds: [], xPostUrl: "", error: "" };
-    if (existing) Object.assign(existing, record); else state.xPosts.push(record);
+    if (existing) { Object.assign(existing, record); delete existing.uploadedMedia; } else state.xPosts.push(record);
     return { id };
   }
   if (["cancelXPost", "deleteXPost", "resolveXPost"].includes(String(action))) {
@@ -145,6 +145,7 @@ export function applyAction(state: EditorialState, command: unknown): Record<str
       if (post.status === "published") fail("Published X posts cannot be cancelled here.");
       post.status = post.publishedIds.length || post.status === "attention" ? "cancelled" : "draft";
       post.scheduledAt = null;
+      delete post.uploadedMedia;
     }
     post.updatedAt = new Date().toISOString();
     return {};
