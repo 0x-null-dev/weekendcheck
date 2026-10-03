@@ -1,6 +1,7 @@
 import { randomUUID } from "node:crypto";
 import { selectionBlock } from "./editorial-selection";
 import { xPostErrors } from "./x-post-validation";
+import { scheduleTimeError } from "./schedule-window";
 import {
   canonicalUrl, projectKey, isSelected, liveVersion,
   type EditorialState, type Entry, type Product, type Post, type Track, type Week,
@@ -120,7 +121,8 @@ export function applyAction(state: EditorialState, command: unknown): Record<str
       scheduledAt = new Date(at).toISOString();
     }
     if (schedule) {
-      if (!scheduledAt || Date.parse(scheduledAt) <= Date.now()) fail("Choose a future publication time.");
+      const timeError = scheduleTimeError(scheduledAt, args.timeZone === undefined ? "UTC" : text(args.timeZone, "time zone", true, 100));
+      if (timeError) fail(timeError);
       const errors = xPostErrors(content); if (errors.length) fail(errors.join(" "));
     }
     const id = existing?.id || randomUUID();
@@ -292,7 +294,8 @@ export function applyAction(state: EditorialState, command: unknown): Record<str
     const version = { title: review.title, posts: structuredClone(review.posts), publishedAt: new Date().toISOString() };
     if (action === "scheduleReview") {
       const at = text(args.publishAt, "publish time", true, 50);
-      if (!Number.isFinite(Date.parse(at)) || Date.parse(at) <= Date.now()) fail("Choose a future publication time.");
+      const timeError = scheduleTimeError(at, args.timeZone === undefined ? "UTC" : text(args.timeZone, "time zone", true, 100));
+      if (timeError) fail(timeError);
       version.publishedAt = new Date(at).toISOString();
       review.scheduled = version;
     } else {

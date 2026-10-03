@@ -96,6 +96,10 @@ a.desk-list-row:hover strong { color: #557638; }
 .desk-calendar-slot { min-height: 44px; position: relative; border-right: 1px solid #eceee5; border-bottom: 1px solid #eceee5; padding: 5px; }
 .desk-calendar-hour:not(.half-hour), .desk-calendar-slot:not(.half-hour) { border-bottom-style: dashed; }
 .desk-calendar-slot.is-today { background: #f7f9ee; }
+.desk-calendar-slot.is-past { background: #f1f2ed; }
+.desk-calendar-slot.is-now { background: #fff1e8; }
+.desk-calendar-now { position: absolute; left: 0; right: 0; z-index: 2; border-top: 2px solid #bf5929; pointer-events: none; }
+.desk-calendar-now > span { position: absolute; left: 5px; top: -10px; border-radius: 4px; padding: 2px 5px; color: #fff; background: #bf5929; font-size: 10px; font-weight: 600; white-space: nowrap; }
 .desk-calendar-add { position: absolute; inset: 0; display: grid; place-items: center; color: #748b4e; transition: background .12s; }
 .desk-calendar-add span { opacity: 0; font-size: 20px; background: #e6edcf; border-radius: 6px; width: 30px; height: 30px; display: grid; place-items: center; }
 .desk-calendar-add:hover, .desk-calendar-add:focus-visible { background: #eaf0da80; }

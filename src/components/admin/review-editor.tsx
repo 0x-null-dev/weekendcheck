@@ -5,6 +5,8 @@ import { useState } from "react";
 import { liveVersion, reviewStatus, type Asset, type Post } from "@/lib/editorial";
 import { useAdmin, useUnsaved, copyText } from "./admin-context";
 import { Empty } from "./admin-lists";
+import { useScheduleClock } from "./use-schedule-clock";
+import { scheduleTimeError } from "@/lib/schedule-window";
 
 export function ReviewEditor({ id }: { id: string }) {
   const { data } = useAdmin();
@@ -14,6 +16,7 @@ export function ReviewEditor({ id }: { id: string }) {
 }
 function Editor({ id, initial }: { id: string; initial: { title: string; posts: Post[]; xPostUrl: string } }) {
   const { data, busy, run, notify } = useAdmin();
+  const { ready, timeZone, min, max } = useScheduleClock();
   const router = useRouter();
   const [form, setForm] = useState(initial);
   const [baseline, setBaseline] = useState(JSON.stringify(initial));
@@ -82,11 +85,13 @@ function Editor({ id, initial }: { id: string; initial: { title: string; posts: 
       <section className="desk-panel"><h2>Publish on the site</h2><p>Save your draft, then publish or schedule it. Editing a draft leaves the live version unchanged.</p>
         {liveVersion(review) && <a className="desk-button" href={`/projects/${product.slug}`} target="_blank" rel="noreferrer">View published review ↗</a>}
         <button className="desk-button primary" disabled={busy || uploading} onClick={async () => { if (window.confirm("Publish this review on your website now?") && await save()) await run({ action: "publishReview", reviewId: id }, "Review published on the site."); }}>{liveVersion(review) ? "Update published review" : "Publish now"}</button>
-        <label>Schedule on site<input type="datetime-local" value={publishAt} onChange={e => setPublishAt(e.target.value)} /></label><small>Time zone: {Intl.DateTimeFormat().resolvedOptions().timeZone}</small>
-        <button className="desk-button" disabled={busy || uploading || !publishAt} onClick={async () => {
+        <label>Schedule on site<input type="datetime-local" min={min} max={max} value={publishAt} onChange={e => setPublishAt(e.target.value)} /></label><small>{timeZone} · Future times this week only.</small>
+        <button className="desk-button" disabled={!ready || busy || uploading || !publishAt} onClick={async () => {
           const date = new Date(publishAt);
-          if (!Number.isFinite(date.getTime()) || date.getTime() <= Date.now()) { setError("Choose a future publication time."); return; }
-          if (await save()) await run({ action: "scheduleReview", reviewId: id, publishAt: date.toISOString() }, "Saved version scheduled on the site.");
+          const timeError = scheduleTimeError(publishAt, timeZone);
+          if (timeError) { setError(timeError); return; }
+          setError("");
+          if (await save()) await run({ action: "scheduleReview", reviewId: id, publishAt: date.toISOString(), timeZone }, "Saved version scheduled on the site.");
         }}>Schedule saved version</button>
         {reviewStatus(review) === "Scheduled" && <><p className="desk-hint">Scheduled for {new Date(review.scheduled!.publishedAt).toLocaleString()}. Later draft edits do not change this snapshot; schedule again to replace it.</p><button className="desk-link-button" disabled={busy} onClick={() => void run({ action: "cancelSchedule", reviewId: id }, "Schedule cancelled.")}>Cancel schedule</button></>}
         {liveVersion(review) && <button className="desk-link-button danger" disabled={busy} onClick={() => { if (window.confirm("Unpublish this review and cancel any scheduled update?")) void run({ action: "unpublishReview", reviewId: id }, "Review unpublished."); }}>Unpublish review</button>}

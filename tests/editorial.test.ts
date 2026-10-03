@@ -82,7 +82,7 @@ test("draft saves do not alter live review; schedule is a frozen future snapshot
   applyAction(state, { action: "publishReview", reviewId: review.id });
   applyAction(state, { action: "saveReview", reviewId: review.id, title: "Draft rewrite", posts: [{ id: "p1", text: "New unpublished text", assets: [] }], xPostUrl: "" });
   assert.equal(publicData(state).reviewedProjects.find(p => p.name === "Test app")?.reviewTitle, "Honest review");
-  applyAction(state, { action: "scheduleReview", reviewId: review.id, publishAt: new Date(Date.now() + 86400000).toISOString() });
+  applyAction(state, { action: "scheduleReview", reviewId: review.id, publishAt: new Date(Date.now() + 1000).toISOString() });
   assert.equal(publicData(state).reviewedProjects.find(p => p.name === "Test app")?.reviewTitle, "Honest review");
   review.scheduled!.publishedAt = new Date(Date.now() - 1000).toISOString();
   assert.equal(publicData(state).reviewedProjects.find(p => p.name === "Test app")?.reviewTitle, "Draft rewrite");

@@ -40,7 +40,7 @@ test("create week, add project, select, write, preview, publish and verify persi
   await page.goto("/projects/browser-test-app");
   await expect(page.locator(".review-thread")).toContainText("The opening review post.");
   await expect(page.locator(".review-thread")).toContainText("A useful follow-up.");
-  const media = page.locator(".review-thread img");
+  const media = page.getByRole("img", { name: "Project screenshot", exact: true });
   await expect(media).toBeVisible();
   const mediaUrl = await media.getAttribute("src");
   expect((await page.request.get(mediaUrl!)).status()).toBe(200);
@@ -91,9 +91,13 @@ test("settings save publicly, export downloads state, and review scheduling canc
   expect(exported.status()).toBe(200);
   expect((await exported.json()).settings.name).toBe("Alex Test");
   await page.goto("/");
-  await expect(page.locator("footer")).toContainText("Alex Test");
+  await expect(page.locator("footer a")).toHaveAttribute("href", /x\.com\/0xAlex_dev$/);
   await page.goto("/admin/reviews/september-1-2026--minuteform");
-  await page.getByLabel("Schedule on site", { exact: true }).fill("2030-10-20T14:30");
+  const reviewTime = await page.evaluate(() => {
+    const date = new Date(Date.now() + 120000);
+    return new Date(date.getTime() - date.getTimezoneOffset() * 60000).toISOString().slice(0, 16);
+  });
+  await page.getByLabel("Schedule on site", { exact: true }).fill(reviewTime);
   await page.getByRole("button", { name: "Schedule saved version", exact: true }).click();
   await expect(page.getByRole("status")).toContainText("scheduled");
   await page.reload();
@@ -112,7 +116,11 @@ test("X composer saves, schedules, edits and cancels a thread without sending it
   await page.getByLabel("X post 1 text").fill("Indie builders: share what you are building this weekend.");
   await page.getByRole("button", { name: "Add thread reply", exact: true }).click();
   await page.getByLabel("X post 2 text").fill("I will pick a few projects for next week's reviews.");
-  await page.getByLabel("Post date and time").fill("2030-10-21T14:30");
+  const postTime = await page.evaluate(() => {
+    const date = new Date(Date.now() + 120000);
+    return new Date(date.getTime() - date.getTimezoneOffset() * 60000).toISOString().slice(0, 16);
+  });
+  await page.getByLabel("Post date and time").fill(postTime);
   await page.getByRole("button", { name: "Schedule on X", exact: true }).click();
   await expect(page).toHaveURL(/\/admin\/schedule\/(?!new)[^/]+$/);
   await page.reload();
@@ -121,10 +129,9 @@ test("X composer saves, schedules, edits and cancels a thread without sending it
   await page.getByRole("button", { name: "Update schedule", exact: true }).click();
   await expect(page.getByRole("status")).toContainText("X post scheduled");
   await page.getByRole("link", { name: "← Schedule", exact: true }).click();
-  await page.getByLabel("Calendar week", { exact: true }).fill("2030-10-21");
-  await expect(page.getByRole("link").filter({ hasText: "Weekend call" })).toBeVisible();
-  await expect(page.locator('.desk-calendar-slot[data-day="2030-10-21"][data-time="14:30"]')).toContainText("Weekend call");
-  await expect(page.locator('.desk-calendar-slot[data-day="2030-10-21"][data-time="14:00"] .desk-calendar-event')).toHaveCount(0);
+  const day = postTime.slice(0, 10);
+  const slotTime = `${postTime.slice(11, 13)}:${Number(postTime.slice(14)) < 30 ? "00" : "30"}`;
+  await expect(page.locator(`.desk-calendar-slot[data-day="${day}"][data-time="${slotTime}"]`)).toContainText("Weekend call");
   await page.getByRole("button", { name: "Dismiss notification" }).click();
   await page.getByRole("link").filter({ hasText: "Weekend call" }).scrollIntoViewIfNeeded();
   await page.screenshot({ path: "/private/tmp/weekendcheck-schedule.png", fullPage: true });
@@ -167,19 +174,60 @@ test("X import follows available pages and deduplicates an editable preview", as
   await expect(page.getByRole("status")).toContainText("Added 2 projects");
 });
 
-test("calendar slots open a composer with the correct time and preserve the week", async ({ page }) => {
+test("calendar locks to this week, marks now, and only offers future slots", async ({ page }) => {
+  await page.clock.install({ time: new Date("2026-10-01T10:15:00") });
   await page.goto("/admin/schedule?week=2030-10-21");
   await expect(page.locator(".desk-calendar-day")).toHaveCount(7);
   await expect(page.locator(".desk-calendar-slot")).toHaveCount(336);
+  await expect(page).toHaveURL(/\/admin\/schedule$/);
+  await expect(page.getByLabel("Calendar week", { exact: true })).toHaveCount(0);
+  const current = page.locator('.desk-calendar-slot[aria-current="time"]');
+  await expect(current).toHaveAttribute("data-day", "2026-10-01");
+  await expect(current).toHaveAttribute("data-time", "10:00");
+  await expect(current).toContainText("Now 10:15");
+  await expect(page.locator(".desk-calendar-slot.is-past .desk-calendar-add")).toHaveCount(0);
   await page.setViewportSize({ width: 390, height: 844 });
+  await page.getByRole("button", { name: "Now", exact: true }).click();
+  expect(await page.locator(".desk-calendar-now").evaluate(marker => {
+    const bounds = marker.getBoundingClientRect();
+    const viewport = marker.closest(".desk-calendar-scroll")!.getBoundingClientRect();
+    return bounds.left >= viewport.left && bounds.right <= viewport.right && bounds.top >= viewport.top && bounds.top <= viewport.bottom;
+  })).toBe(true);
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
   await page.screenshot({ path: "/private/tmp/weekendcheck-calendar-mobile.png", fullPage: true });
   await page.setViewportSize({ width: 1440, height: 1000 });
   for (const time of ["14:00", "14:30", "23:30", "00:00"]) {
-    await page.getByRole("link", { name: `Add X post on 2030-10-23 at ${time}`, exact: true }).click();
-    await expect(page.getByLabel("Post date and time")).toHaveValue(`2030-10-23T${time}`);
+    await page.getByRole("link", { name: `Add X post on 2026-10-02 at ${time}`, exact: true }).click();
+    await expect(page.getByLabel("Post date and time")).toHaveValue(`2026-10-02T${time}`);
+    await expect(page.getByLabel("Post date and time")).toHaveAttribute("max", "2026-10-04T23:59");
     await page.getByRole("link", { name: "← Schedule", exact: true }).click();
-    await expect(page.getByLabel("Calendar week", { exact: true })).toHaveValue("2030-10-21");
+    await expect(page.locator(".desk-calendar-day").first()).toContainText("28");
   }
   await page.screenshot({ path: "/private/tmp/weekendcheck-calendar-grid.png", fullPage: true });
+});
+
+test("an open calendar rolls into the new week on Monday", async ({ page }) => {
+  await page.clock.install({ time: new Date("2026-10-04T23:59:50") });
+  await page.goto("/admin/schedule");
+  await expect(page.locator(".desk-calendar-day").first()).toContainText("28");
+  await page.clock.runFor(11000);
+  await expect(page.locator(".desk-calendar-day").first()).toContainText("5");
+  await expect(page.locator('.desk-calendar-slot[aria-current="time"]')).toHaveAttribute("data-day", "2026-10-05");
+  await expect(page.locator('.desk-calendar-slot[aria-current="time"]')).toContainText("Now 00:00");
+});
+
+test("composer rejects past and later-week times while keeping drafts editable", async ({ page }) => {
+  await page.clock.install({ time: new Date("2026-10-01T10:15:00") });
+  await page.goto("/admin/schedule/new");
+  await page.getByLabel("X post 1 text").fill("Scheduling limits test");
+  const input = page.getByLabel("Post date and time");
+  await expect(input).toHaveAttribute("min", "2026-10-01T10:16");
+  await input.fill("2026-10-01T10:00");
+  await page.getByRole("button", { name: "Schedule on X", exact: true }).click();
+  await expect(page.locator(".desk-error[role=alert]")).toContainText("future publication time");
+  await input.fill("2026-10-05T10:00");
+  await page.getByRole("button", { name: "Schedule on X", exact: true }).click();
+  await expect(page.locator(".desk-error[role=alert]")).toContainText("current week");
+  await page.getByRole("button", { name: "Save draft", exact: true }).click();
+  await expect(page.getByRole("status")).toContainText("X draft saved");
 });

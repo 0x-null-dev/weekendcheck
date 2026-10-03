@@ -2,7 +2,9 @@
 import Link from "next/link";
 import { Fragment, useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
-import { monday, reviewStatus, type Asset, type Post } from "@/lib/editorial";
+import { reviewStatus, type Asset, type Post } from "@/lib/editorial";
+import { scheduleTimeError, shiftCalendarDay } from "@/lib/schedule-window";
+import { localDateTime, useScheduleClock } from "./use-schedule-clock";
 import { xPostErrors, xTextLength } from "@/lib/x-post-validation";
 import { useAdmin, useUnsaved } from "./admin-context";
 import { AssetPreview, ThreadPreview } from "./review-editor";
@@ -11,11 +13,7 @@ import { Empty } from "./admin-lists";
 const statusNames = { draft: "Draft", scheduled: "Scheduled", publishing: "Publishing…", published: "Published", failed: "Failed", attention: "Check X", cancelled: "Stopped" };
 function localTime(iso: string | null) {
   if (!iso) return "";
-  const date = new Date(iso);
-  return new Date(date.getTime() - date.getTimezoneOffset() * 60000).toISOString().slice(0,16);
-}
-function shiftDay(day: string, amount: number) {
-  const date = new Date(`${day}T12:00:00Z`); date.setUTCDate(date.getUTCDate() + amount); return date.toISOString().slice(0,10);
+  return localDateTime(new Date(iso));
 }
 export function XConnectionStatus() {
   const [status, setStatus] = useState<{ configured: boolean; enabled: boolean; running: boolean } | null>(null);
@@ -27,31 +25,39 @@ export function XConnectionStatus() {
   }, []);
   return <p className={status?.configured && status.enabled && status.running ? "desk-hint" : "desk-warning"} aria-live="polite">{!status ? "Checking X scheduler…" : !status.configured ? "X posting is not connected. You can plan posts, but they will not send yet." : !status.enabled ? "X posting is paused. Saved schedules will not send." : !status.running ? "Scheduler is offline. Start it before your posts are due." : "X scheduler is running."}</p>;
 }
-export function XSchedule({ initialWeek }: { initialWeek?: string }) {
+export function XSchedule() {
   const { data } = useAdmin();
-  const [week, setWeek] = useState(initialWeek && /^\d{4}-\d{2}-\d{2}$/.test(initialWeek) && Number.isFinite(Date.parse(initialWeek)) ? monday(new Date(`${initialWeek}T12:00:00`)) : monday());
+  const { ready, now, timeZone: timezone, week: currentWeek } = useScheduleClock();
+  const week = currentWeek.start;
   const [channel, setChannel] = useState("all");
   const calendar = useRef<HTMLDivElement>(null);
-  const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
   const unscheduled = data.xPosts.filter(p => ["draft", "failed", "attention", "publishing"].includes(p.status));
-  const days = Array.from({ length: 7 }, (_, index) => shiftDay(week, index));
-  const today = localTime(new Date().toISOString()).slice(0,10);
+  const days = Array.from({ length: 7 }, (_, index) => shiftCalendarDay(week, index));
+  const today = localDateTime(now).slice(0,10);
+  const currentSlot = now.getHours() * 2 + Math.floor(now.getMinutes() / 30);
+  const currentTime = localDateTime(now).slice(11);
   const events = [
     ...data.xPosts.filter(p => p.scheduledAt && ["scheduled", "publishing", "published"].includes(p.status)).map(p => ({ id: p.id, at: localTime(p.scheduledAt), title: p.title || p.posts[0]?.text || "Untitled post", href: `/admin/schedule/${p.id}`, channel: "x", label: statusNames[p.status], preview: p.posts[0]?.text || "", count: p.posts.length })),
     ...data.reviews.filter(r => reviewStatus(r) === "Scheduled").map(r => ({ id: r.id, at: localTime(r.scheduled!.publishedAt), title: r.scheduled!.title, href: `/admin/reviews/${r.id}`, channel: "site", label: "Review", preview: r.scheduled!.posts[0]?.text || "", count: r.scheduled!.posts.length })),
   ].filter(event => event.at.slice(0,10) >= week && event.at.slice(0,10) <= days[6] && (channel === "all" || event.channel === channel)).sort((a,b) => a.at.localeCompare(b.at));
-  const firstHour = events.length ? Math.max(0, Math.min(...events.map(event => Number(event.at.slice(11,13)))) - 1) : 8;
+  function scrollToNow() {
+    const slot = calendar.current?.querySelector<HTMLElement>("[aria-current=\"time\"]");
+    if (calendar.current && slot) {
+      calendar.current.scrollTop = Math.max(0, slot.offsetTop - 120);
+      calendar.current.scrollLeft = Math.max(0, slot.offsetLeft - 58);
+    }
+  }
   useEffect(() => {
-    const url = new URL(window.location.href); url.searchParams.set("week", week); window.history.replaceState(null, "", url);
-    const row = calendar.current?.querySelector<HTMLElement>(`[data-hour="${firstHour}"]`);
-    if (calendar.current && row) calendar.current.scrollTop = row.offsetTop - 76;
-  }, [week, firstHour]);
+    const url = new URL(window.location.href); url.searchParams.delete("week"); window.history.replaceState(null, "", url);
+    scrollToNow();
+  }, [week, ready]);
+  if (!ready) return <p className="desk-hint">Loading this week’s schedule…</p>;
   const range = `${new Date(`${week}T12:00:00`).toLocaleDateString(undefined, { month: "short", day: "numeric" })} – ${new Date(`${days[6]}T12:00:00`).toLocaleDateString(undefined, { month: "short", day: "numeric", year: "numeric" })}`;
   return <>
     <div className="desk-heading"><div><h1>Schedule</h1></div><Link className="desk-button primary" href="/admin/schedule/new">＋ New X post</Link></div>
     <XConnectionStatus />
     <section className="desk-calendar" aria-label="Weekly post calendar">
-      <div className="desk-calendar-toolbar"><div className="desk-calendar-navigation"><button className="desk-button" onClick={() => setWeek(monday())}>Today</button><button className="desk-calendar-arrow" aria-label="Previous calendar week" onClick={() => setWeek(shiftDay(week, -7))}>‹</button><button className="desk-calendar-arrow" aria-label="Next calendar week" onClick={() => setWeek(shiftDay(week, 7))}>›</button><strong>{range}</strong></div><div className="desk-calendar-controls"><input aria-label="Calendar week" type="date" value={week} onChange={e => { if (e.target.value) setWeek(monday(new Date(`${e.target.value}T12:00:00`))); }} /><select aria-label="Calendar channel" value={channel} onChange={e => setChannel(e.target.value)}><option value="all">All posts</option><option value="x">X posts</option><option value="site">Website reviews</option></select></div></div>
+      <div className="desk-calendar-toolbar"><div className="desk-calendar-navigation"><button className="desk-button" onClick={scrollToNow}>Now</button><strong>{range}</strong></div><div className="desk-calendar-controls"><select aria-label="Calendar channel" value={channel} onChange={e => setChannel(e.target.value)}><option value="all">All posts</option><option value="x">X posts</option><option value="site">Website reviews</option></select></div></div>
       <div className="desk-calendar-legend"><span><i className="x-dot" /> X posts</span><span><i className="site-dot" /> Website reviews</span><small>{events.length} planned · {timezone}</small></div>
       <div className="desk-calendar-scroll" ref={calendar} tabIndex={0} role="region" aria-label="Scroll calendar days and hours">
         <div className="desk-calendar-grid">
@@ -65,8 +71,11 @@ export function XSchedule({ initialWeek }: { initialWeek?: string }) {
             <div className={`desk-calendar-hour ${minute ? "half-hour" : ""}`} data-hour={minute === 0 ? hour : undefined}>{time}</div>
             {days.map(day => {
               const items = events.filter(event => event.at.startsWith(`${day}T${String(hour).padStart(2,"0")}:`) && Math.floor(Number(event.at.slice(14,16)) / 30) * 30 === minute);
-              return <div className={`desk-calendar-slot ${minute ? "half-hour" : ""} ${day === today ? "is-today" : ""}`} data-day={day} data-time={time} key={`${day}-${slot}`}>
-                <Link className="desk-calendar-add" href={`/admin/schedule/new?date=${day}&time=${time}`} aria-label={`Add X post on ${day} at ${time}`}><span>＋</span></Link>
+              const isNow = day === today && slot === currentSlot;
+              const isPast = new Date(`${day}T${time}`).getTime() <= now.getTime();
+              return <div className={`desk-calendar-slot ${minute ? "half-hour" : ""} ${day === today ? "is-today" : ""} ${isPast ? "is-past" : ""} ${isNow ? "is-now" : ""}`} aria-current={isNow ? "time" : undefined} data-day={day} data-time={time} key={`${day}-${slot}`}>
+                {!isPast && <Link className="desk-calendar-add" href={`/admin/schedule/new?date=${day}&time=${time}`} aria-label={`Add X post on ${day} at ${time}`}><span>＋</span></Link>}
+                {isNow && <div className="desk-calendar-now" style={{ top: `${((now.getMinutes() % 30) + now.getSeconds() / 60) / 30 * 100}%` }}><span>Now {currentTime}</span></div>}
                 {items.map(event => <Link className={`desk-calendar-event ${event.channel}`} href={event.href} key={event.id}><div><span className="desk-calendar-platform">{event.channel === "x" ? "𝕏" : "W"}</span><time>{event.at.slice(11)}</time><span className="desk-calendar-event-status">{event.label}</span></div><strong>{event.title}</strong>{event.preview !== event.title && <p>{event.preview}</p>}{event.count > 1 && <small>{event.count} posts in thread</small>}</Link>)}
               </div>;
             })}
@@ -74,7 +83,7 @@ export function XSchedule({ initialWeek }: { initialWeek?: string }) {
           })}
         </div>
       </div>
-      <div className="desk-calendar-footer">Click an empty time slot to add a post.</div>
+      <div className="desk-calendar-footer">Schedule in future slots this week. A new week opens automatically every Monday.</div>
     </section>
     <section className="desk-panel"><h2>Drafts & needs attention</h2>{unscheduled.map(post => <Link className="desk-list-row" key={post.id} href={`/admin/schedule/${post.id}`}><div className="desk-grow"><strong>{post.title || post.posts[0]?.text.slice(0,80) || "Untitled post"}</strong>{post.error && <small className="desk-warning">{post.error}</small>}</div><span className="desk-pill">{statusNames[post.status]}</span><span>→</span></Link>)}{!unscheduled.length && <small>No drafts or failed posts.</small>}</section>
   </>;
@@ -88,6 +97,7 @@ export function XPostEditor({ id, date, time }: { id: string; date?: string; tim
 }
 function Composer({ id, initial }: { id: string; initial: { title: string; posts: Post[]; time: string } }) {
   const { data, run, busy } = useAdmin();
+  const { ready, timeZone, min, max } = useScheduleClock();
   const router = useRouter();
   const [form, setForm] = useState(initial);
   const [baseline, setBaseline] = useState(JSON.stringify(initial));
@@ -106,7 +116,8 @@ function Composer({ id, initial }: { id: string; initial: { title: string; posts
     if (!schedule && item?.status === "scheduled" && !window.confirm("Cancel this schedule and keep the edited post as a draft?")) return;
     const parsed = form.time ? new Date(form.time) : null;
     if (parsed && !Number.isFinite(parsed.getTime())) { setError("Choose a valid date and time."); return; }
-    const saved = await run({ action: "saveXPost", postId: item?.id, title: form.title, posts: form.posts, scheduledAt: parsed?.toISOString() || null, schedule }, schedule ? "X post scheduled. Check the scheduler connection above." : "X draft saved.");
+    if (schedule) { const timeError = scheduleTimeError(parsed?.toISOString() || null, timeZone); if (timeError) { setError(timeError); return; } }
+    const saved = await run({ action: "saveXPost", postId: item?.id, title: form.title, posts: form.posts, scheduledAt: parsed?.toISOString() || null, schedule, timeZone }, schedule ? "X post scheduled. Check the scheduler connection above." : "X draft saved.");
     if (saved) { setBaseline(JSON.stringify(form)); if (!item) router.replace(`/admin/schedule/${saved.result.id}`); }
   }
   async function upload(index: number, files: FileList | null) {
@@ -124,7 +135,7 @@ function Composer({ id, initial }: { id: string; initial: { title: string; posts
     finally { setUploading(false); }
   }
   return <>
-    <Link className="desk-back" href={form.time ? `/admin/schedule?week=${form.time.slice(0,10)}` : "/admin/schedule"}>← Schedule</Link>
+    <Link className="desk-back" href="/admin/schedule">← Schedule</Link>
     <div className="desk-heading"><div><h1>{id === "new" ? "New X post" : "X post"}</h1><p>{item ? statusNames[item.status] : "Draft"}{dirty ? " · Unsaved changes" : ""}</p></div><button className="desk-button" onClick={() => setPreview(!preview)}>{preview ? "Edit posts" : "Preview thread"}</button></div>
     <XConnectionStatus />
     {item?.reviewId && <p className="desk-hint">Copied from your review. Changes here only affect X. <Link href={`/admin/reviews/${item.reviewId}`}>Open website review →</Link></p>}
@@ -142,8 +153,8 @@ function Composer({ id, initial }: { id: string; initial: { title: string; posts
       </>}
       {error && <p className="desk-error" role="alert">{error}</p>}
     </div><aside><section className="desk-panel"><h2>Publish on X</h2>{editable ? <>
-      <label>Post date and time<input type="datetime-local" value={form.time} onChange={e => setForm({ ...form, time: e.target.value })} /></label><small>{Intl.DateTimeFormat().resolvedOptions().timeZone}</small>
-      <div className="desk-stacked-actions"><button className="desk-button primary" disabled={busy || uploading || !form.time} onClick={() => void save(true)}>{item?.status === "scheduled" ? "Update schedule" : "Schedule on X"}</button><button className="desk-button" disabled={busy || uploading} onClick={() => void save(false)}>{item?.status === "scheduled" ? "Unschedule & save draft" : "Save draft"}</button></div>
+      <label>Post date and time<input type="datetime-local" min={min} max={max} value={form.time} onChange={e => setForm({ ...form, time: e.target.value })} /></label><small>{timeZone} · Future times this week only.</small>
+      <div className="desk-stacked-actions"><button className="desk-button primary" disabled={!ready || busy || uploading || !form.time} onClick={() => void save(true)}>{item?.status === "scheduled" ? "Update schedule" : "Schedule on X"}</button><button className="desk-button" disabled={busy || uploading} onClick={() => void save(false)}>{item?.status === "scheduled" ? "Unschedule & save draft" : "Save draft"}</button></div>
       {item?.status === "scheduled" && <button className="desk-link-button" disabled={busy} onClick={() => void run({ action: "cancelXPost", postId: id }, "X schedule cancelled.")}>Cancel X schedule</button>}
     </> : <p>{item?.status === "publishing" ? "Sending the thread. Refresh after it finishes." : item?.status === "published" ? "Published on X." : "Automatic posting has stopped for this thread."}</p>}
     {item?.xPostUrl && <a className="desk-button" href={item.xPostUrl} target="_blank" rel="noreferrer">Open on X ↗</a>}
