@@ -8,7 +8,7 @@ export function Mark() {
 
 export function SiteHeader({ settings = defaultSettings }: { settings?: Settings }) {
   const handle = settings.handle === "0xAlex_dev" ? "0xAlex" : settings.handle || "0xAlex";
-  return <header className="site-header alex-header"><Mark /><nav><Link href="/#how-it-works">How it works</Link><Link href="/#tries">Apps I tried</Link><a className="header-x" href={`https://x.com/${handle}`} target="_blank" rel="noreferrer">Follow @0xAlex ↗</a></nav></header>;
+  return <header className="site-header alex-header"><Mark /><nav><Link href="/#tries">Apps I tried</Link><a className="header-x" href={`https://x.com/${handle}`} target="_blank" rel="noreferrer">X ↗</a></nav></header>;
 }
 
 export function SiteFooter({ settings = defaultSettings }: { settings?: Settings }) {
