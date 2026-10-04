@@ -16,6 +16,11 @@ test("create week, add project, select, write, preview, publish and verify persi
   await page.getByRole("button", { name: "Projects", exact: true }).click();
   await page.getByLabel("Review choice for Browser Test App").selectOption("quick");
   await expect(page.getByRole("status")).toContainText("Review choice saved");
+  await page.getByLabel("Access for Browser Test App", { exact: true }).selectOption("paid");
+  await expect(page.getByRole("status")).toContainText("Access saved");
+  await page.reload();
+  await expect(page.getByLabel("Access for Browser Test App", { exact: true })).toHaveValue("paid");
+  await expect(page.locator(".desk-project-row").filter({ hasText: "Browser Test App" })).toContainText("Quick Take · Paid");
   await page.getByRole("button", { name: "Publish selection", exact: true }).click();
   await expect(page.getByRole("status")).toContainText("published");
   await page.getByRole("button", { name: "Write review →", exact: true }).click();
@@ -44,6 +49,49 @@ test("create week, add project, select, write, preview, publish and verify persi
   await expect(media).toBeVisible();
   const mediaUrl = await media.getAttribute("src");
   expect((await page.request.get(mediaUrl!)).status()).toBe(200);
+  await expect(page.locator("main")).not.toContainText("Quick Take · Paid");
+  await page.goto("/admin/projects");
+  const project = page.locator(".desk-list-row").filter({ hasText: "Browser Test App" });
+  await expect(project).toContainText("Quick Take · Paid");
+  await expect(project).not.toContainText("Reviewed");
+  await project.click();
+  await page.getByLabel("Access for Browser Test App", { exact: true }).selectOption("trial");
+  await expect(page.getByRole("status")).toContainText("Access saved");
+  await page.reload();
+  await expect(page.getByLabel("Access for Browser Test App", { exact: true })).toHaveValue("trial");
+  await expect(page.locator(".desk-list-row").filter({ hasText: "Oct 12" })).toContainText("Quick Take · Trial");
+  await page.setViewportSize({ width: 390, height: 844 });
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
+});
+
+test("review types and access stay simple and persist through selection edits", async ({ page }) => {
+  await page.goto("/admin/weeks/september-8-2026");
+  const choice = page.getByLabel("Review choice for NovelHive", { exact: true });
+  await expect(choice.locator("option")).toHaveText(["In consideration", "Quick Take", "Deep Review"]);
+  await expect(page.getByLabel("Access for NovelHive", { exact: true })).toHaveCount(0);
+  await choice.selectOption("deep");
+  await expect(page.getByRole("status")).toContainText("Review choice saved");
+  const access = page.getByLabel("Access for NovelHive", { exact: true });
+  await expect(access).toHaveValue("");
+  for (const value of ["free", "trial", "paid"]) {
+    await access.selectOption(value);
+    await expect(page.getByRole("status")).toContainText("Access saved");
+  }
+  const row = page.locator(".desk-project-row").filter({ hasText: "NovelHive" });
+  await row.getByRole("button", { name: "Edit selection", exact: true }).click();
+  await page.getByLabel("Access", { exact: true }).selectOption("");
+  await page.getByRole("button", { name: "Save selection", exact: true }).click();
+  await expect(page.getByRole("status")).toContainText("Selection saved");
+  await expect(access).toHaveValue("");
+  await choice.selectOption("quick");
+  await expect(page.getByRole("status")).toContainText("Review choice saved");
+  await access.selectOption("free");
+  await expect(page.getByRole("status")).toContainText("Access saved");
+  await page.reload();
+  await expect(row).toContainText("Quick Take · Free");
+  await page.setViewportSize({ width: 390, height: 844 });
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
+  await page.screenshot({ path: "/private/tmp/weekendcheck-review-tracking-mobile.png", fullPage: true });
 });
 
 test("admin navigation and mobile layout have no dead routes or overflow", async ({ page }) => {

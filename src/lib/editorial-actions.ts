@@ -4,7 +4,7 @@ import { xPostErrors } from "./x-post-validation";
 import { scheduleTimeError } from "./schedule-window";
 import {
   canonicalUrl, projectKey, isSelected, liveVersion,
-  type EditorialState, type Entry, type Product, type Post, type Track, type Week,
+  type EditorialState, type Entry, type Product, type Post, type Track, type Week, type ReviewAccess,
 } from "./editorial";
 
 function fail(message: string): never { throw new Error(message); }
@@ -44,6 +44,11 @@ function date(value: unknown) {
 function track(value: unknown): Track {
   if (!["inbox", "shortlisted", "quick", "deep", "passed"].includes(String(value))) fail("Invalid review track.");
   return value as Track;
+}
+function reviewAccess(value: unknown): ReviewAccess | undefined {
+  if (value === null || value === "") return undefined;
+  if (typeof value !== "string" || !["free", "trial", "paid"].includes(value)) fail("Choose Free, Trial, or Paid.");
+  return value as ReviewAccess;
 }
 function productFields(args: Record<string, unknown>) {
   const handle = text(args.handle, "X handle", false, 16).replace(/^@/, "");
@@ -188,8 +193,15 @@ export function applyAction(state: EditorialState, command: unknown): Record<str
     if (week) attach(week, project, args.source ? xUrl(args.source) : "");
     return { id: project.id };
   }
-  if (["saveWeek", "deleteWeek", "addExisting", "importProjects", "saveEntry", "removeEntry", "publishSelection", "hideWeek", "prepareReview"].includes(String(action))) {
+  if (["saveWeek", "deleteWeek", "addExisting", "importProjects", "saveEntry", "saveReviewAccess", "removeEntry", "publishSelection", "hideWeek", "prepareReview"].includes(String(action))) {
     const week = getWeek(state, args.weekId);
+    if (action === "saveReviewAccess") {
+      const entry = week.entries.find(e => e.projectId === args.projectId) || fail("Project not in this week.");
+      if (!isSelected(entry.track)) fail("Choose Quick Take or Deep Review before recording access.");
+      const access = reviewAccess(args.access);
+      if (access) entry.access = access; else delete entry.access;
+      return {};
+    }
     if (action === "saveWeek") {
       if (!["collecting", "curating", "complete"].includes(String(args.state))) fail("Invalid week state.");
       if (args.state === "complete" && week.entries.some(e => isSelected(e.track) && !state.reviews.some(r => r.weekId === week.id && r.projectId === e.projectId && liveVersion(r)))) fail("Publish all selected reviews before completing this week.");
@@ -240,6 +252,7 @@ export function applyAction(state: EditorialState, command: unknown): Record<str
     if (action === "saveEntry") {
       const entry = week.entries.find(e => e.projectId === args.projectId) || fail("Project not in this week.");
       const nextTrack = track(args.track);
+      const access = args.access === undefined ? entry.access : reviewAccess(args.access);
       const review = state.reviews.find(r => r.weekId === week.id && r.projectId === entry.projectId);
       if (review && (review.published || review.scheduled) && nextTrack !== entry.track) fail("Unpublish or cancel this review before changing its track.");
       Object.assign(entry, { ready: bool(args.ready), fit: number(args.fit, 0, 5), clarity: number(args.clarity, 0, 5), interest: number(args.interest, 0, 5), source: xUrl(args.source), note: text(args.note, "private note", false, 5000) });
@@ -248,6 +261,7 @@ export function applyAction(state: EditorialState, command: unknown): Record<str
         if (reason) fail(reason);
       }
       entry.track = nextTrack;
+      if (access) entry.access = access; else delete entry.access;
       if (review && isSelected(nextTrack)) review.kind = nextTrack;
       return {};
     }

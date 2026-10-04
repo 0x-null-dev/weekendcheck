@@ -1,5 +1,13 @@
 export type Track = "inbox" | "shortlisted" | "quick" | "deep" | "passed";
 export type Kind = "quick" | "deep";
+export type ReviewAccess = "free" | "trial" | "paid";
+export const reviewAccessNames: Record<ReviewAccess, string> = { free: "Free", trial: "Trial", paid: "Paid" };
+export const reviewTypeNames = { inbox: "In consideration", quick: "Quick Take", deep: "Deep Review" } as const;
+export const reviewType = (track: Track) => isSelected(track) ? track : "inbox";
+export function reviewTrackingLabel(track: Track, access?: ReviewAccess) {
+  const name = reviewTypeNames[reviewType(track)];
+  return isSelected(track) && access ? `${name} · ${reviewAccessNames[access]}` : name;
+}
 export const trackNames: Record<Track, string> = { inbox: "In consideration", shortlisted: "Shortlist", quick: "Quick take", deep: "Deep review", passed: "Not selected" };
 export type Asset = { id: string; type: "image" | "video"; url: string; alt: string };
 export type Post = { id: string; text: string; assets: Asset[] };
@@ -10,6 +18,7 @@ export type Product = {
 };
 export type Entry = {
   projectId: string; track: Track; source: string; note: string;
+  access?: ReviewAccess;
   fit: number; clarity: number; interest: number; ready: boolean;
 };
 export type Week = {
@@ -34,6 +43,11 @@ export type XPost = {
 export type EditorialState = {
   version: 1; revision: number; projects: Product[]; weeks: Week[]; reviews: Review[]; settings: Settings; xPosts: XPost[];
 };
+export function projectReviewEntry(state: EditorialState, projectId: string): Entry | undefined {
+  // A project can be collected in later weeks without replacing its actual review.
+  return [...state.weeks].sort((a, b) => b.startsOn.localeCompare(a.startsOn))
+    .flatMap(week => week.entries.filter(entry => entry.projectId === projectId && isSelected(entry.track)))[0];
+}
 export const defaultSettings: Settings = { name: "Alex", handle: "0xAlex_dev", avatarUrl: "/0x-alex.png", siteUrl: "https://0xalexcheck.app", quickSlots: 5, deepSlots: 2 };
 export type Candidate = { name: string; url: string; handle: string; description: string; source: string };
 export const isSelected = (track: Track): track is Kind => track === "quick" || track === "deep";

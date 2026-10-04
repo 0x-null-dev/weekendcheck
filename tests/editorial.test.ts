@@ -6,7 +6,7 @@ import path from "node:path";
 import { applyAction } from "../src/lib/editorial-actions";
 import { seedState } from "../src/lib/editorial-seed";
 import { selectionBlock } from "../src/lib/editorial-selection";
-import { parseCandidates, projectKey, type EditorialState, type Week } from "../src/lib/editorial";
+import { parseCandidates, projectKey, projectReviewEntry, reviewTrackingLabel, type EditorialState, type Week } from "../src/lib/editorial";
 import { publicData } from "../src/lib/public-data";
 import { changeState, readState } from "../src/lib/editorial-store";
 import { closeDatabase } from "../src/lib/database";
@@ -74,6 +74,52 @@ test("imports reuse canonical project history and skip duplicates", () => {
   const initial = state.projects.length;
   const result = applyAction(state, { action: "importProjects", weekId: week.id, candidates: [{ name: "Renamed", url: "https://pgvitals.kafal.studio/?utm_source=x", handle: "", description: "", source: "" }, { name: "Again", url: "https://pgvitals.kafal.studio", handle: "", description: "", source: "" }] });
   assert.deepEqual(result, { added: 1, skipped: 1 }); assert.equal(state.projects.length, initial);
+});
+test("access tracking stays private, validates choices, and remains editable after completion", () => {
+  const { state, week } = fixture();
+  const review = pick(state, week);
+  const entry = week.entries[0];
+  assert.equal(entry.access, undefined); // Existing data is not silently assumed to be free.
+  const command = { action: "saveReviewAccess", weekId: week.id, projectId: entry.projectId };
+  for (const access of ["free", "trial", "paid"] as const) {
+    applyAction(state, { ...command, access });
+    assert.equal(entry.access, access);
+  }
+  assert.equal(reviewTrackingLabel(entry.track, entry.access), "Quick Take · Paid");
+  for (const access of ["premium", ["paid"], { access: "paid" }]) assert.throws(() => applyAction(state, { ...command, access }), /Free, Trial, or Paid/);
+  assert.equal(entry.access, "paid");
+  applyAction(state, { action: "saveEntry", weekId: week.id, ...entry, track: "deep", access: "trial" });
+  assert.equal(review.kind, "deep");
+  assert.equal(reviewTrackingLabel(entry.track, entry.access), "Deep Review · Trial");
+  applyAction(state, { action: "publishSelection", weekId: week.id });
+  const publicBefore = JSON.stringify(publicData(state));
+  applyAction(state, { ...command, access: "paid" });
+  assert.equal(JSON.stringify(publicData(state)), publicBefore);
+  assert.equal("access" in publicData(state).weeks.find(w => w.slug === week.id)!.entries[0], false);
+  applyAction(state, { action: "publishReview", reviewId: review.id });
+  week.state = "complete";
+  applyAction(state, { ...command, access: "free" });
+  assert.equal(entry.access, "free");
+  assert.ok(review.published);
+  applyAction(state, { ...command, access: null });
+  assert.equal(entry.access, undefined);
+});
+
+test("tracking survives selection edits and later collection without a review", () => {
+  const { state, week } = fixture();
+  const review = pick(state, week);
+  const entry = week.entries[0];
+  applyAction(state, { action: "saveReviewAccess", weekId: week.id, projectId: entry.projectId, access: "paid" });
+  const { access: _access, ...legacy } = entry;
+  applyAction(state, { action: "saveEntry", weekId: week.id, ...legacy });
+  assert.equal(entry.access, "paid");
+  const next = applyAction(state, { action: "createWeek", startsOn: "2026-09-28" });
+  applyAction(state, { action: "addExisting", weekId: next.id, projectId: review.projectId });
+  assert.equal(projectReviewEntry(state, review.projectId), entry);
+  const newEntry = state.weeks.find(w => w.id === next.id)!.entries[0];
+  assert.throws(() => applyAction(state, { action: "saveReviewAccess", weekId: next.id, projectId: newEntry.projectId, access: "paid" }), /Quick Take or Deep Review/);
+  assert.equal(reviewTrackingLabel("shortlisted"), "In consideration");
+  assert.equal(reviewTrackingLabel("passed"), "In consideration");
 });
 test("draft saves do not alter live review; schedule is a frozen future snapshot", () => {
   const { state, week } = fixture();

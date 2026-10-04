@@ -127,6 +127,8 @@ a.desk-list-row:hover strong { color: #557638; }
 .desk-project-row p { margin: 5px 0; }
 .desk-project-row small { display: block; }
 .desk-row-actions { display: flex; flex-direction: column; align-items: flex-start; gap: 7px; min-width: 140px; }
+.desk-row-actions > select { width: auto; min-width: 140px; }
+.desk-tracking-access { max-width: 180px; }
 .desk-score { text-align: center; padding: 0 10px; }
 .desk-score strong { font-size: 20px; }
 .desk-modal-backdrop { position: fixed; inset: 0; z-index: 30; background: #232c2070; display: grid; align-items: center; padding: 22px; overflow-y: auto; }
