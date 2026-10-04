@@ -222,7 +222,7 @@ test("X import follows available pages and deduplicates an editable preview", as
   await expect(page.getByRole("status")).toContainText("Added 2 projects");
 });
 
-test("calendar locks to this week, marks now, and only offers future slots", async ({ page }) => {
+test("calendar defaults to this week, marks now, and only offers future slots", async ({ page }) => {
   await page.clock.install({ time: new Date("2026-10-01T10:15:00") });
   await page.goto("/admin/schedule?week=2030-10-21");
   await expect(page.locator(".desk-calendar-day")).toHaveCount(7);
@@ -247,11 +247,54 @@ test("calendar locks to this week, marks now, and only offers future slots", asy
   for (const time of ["14:00", "14:30", "23:30", "00:00"]) {
     await page.getByRole("link", { name: `Add X post on 2026-10-02 at ${time}`, exact: true }).click();
     await expect(page.getByLabel("Post date and time")).toHaveValue(`2026-10-02T${time}`);
-    await expect(page.getByLabel("Post date and time")).toHaveAttribute("max", "2026-10-04T23:59");
+    await expect(page.getByLabel("Post date and time")).toHaveAttribute("max", "2026-10-11T23:59");
     await page.getByRole("link", { name: "← Schedule", exact: true }).click();
     await expect(page.locator(".desk-calendar-day").first()).toContainText("28");
   }
   await page.screenshot({ path: "/private/tmp/weekendcheck-calendar-grid.png", fullPage: true });
+});
+
+test("Sunday can navigate one week ahead and return from the composer", async ({ page }) => {
+  await page.clock.install({ time: new Date("2026-10-04T22:15:00") });
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto("/admin/schedule");
+  const previous = page.getByRole("button", { name: "Previous calendar week" });
+  const next = page.getByRole("button", { name: "Next calendar week" });
+  await expect(previous).toBeDisabled();
+  await next.click();
+  await expect(next).toBeDisabled();
+  await expect(previous).toBeEnabled();
+  await expect(page).toHaveURL(/week=2026-10-05$/);
+  await expect(page.locator(".desk-calendar-day").first()).toContainText("5");
+  await expect(page.locator(".desk-calendar-now")).toHaveCount(0);
+  await expect(page.locator(".desk-calendar-add")).toHaveCount(336);
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
+  await page.screenshot({ path: "/private/tmp/weekendcheck-calendar-next-week-mobile.png", fullPage: true });
+  await page.getByRole("link", { name: "Add X post on 2026-10-05 at 12:00", exact: true }).click();
+  await expect(page.getByLabel("Post date and time")).toHaveValue("2026-10-05T12:00");
+  await expect(page.getByLabel("Post date and time")).toHaveAttribute("max", "2026-10-11T23:59");
+  await page.getByRole("link", { name: "← Schedule", exact: true }).click();
+  await expect(page).toHaveURL(/week=2026-10-05$/);
+  await previous.click();
+  await expect(page.locator(".desk-calendar-day").first()).toContainText("28");
+  await next.click();
+  await page.reload();
+  await expect(page).toHaveURL(/week=2026-10-05$/);
+  await page.getByRole("button", { name: "Now", exact: true }).click();
+  await expect(page).toHaveURL(/\/admin\/schedule$/);
+  await expect(page.locator('.desk-calendar-slot[aria-current="time"]')).toHaveAttribute("data-day", "2026-10-04");
+});
+
+test("previewing next week does not skip another week on Monday", async ({ page }) => {
+  await page.clock.install({ time: new Date("2026-10-04T23:59:50") });
+  await page.goto("/admin/schedule?week=2026-10-05");
+  await expect(page.getByRole("button", { name: "Next calendar week" })).toBeDisabled();
+  await page.clock.runFor(11000);
+  await expect(page.locator(".desk-calendar-day").first()).toContainText("5");
+  await expect(page).toHaveURL(/\/admin\/schedule$/);
+  await expect(page.getByRole("button", { name: "Next calendar week" })).toBeEnabled();
+  await expect(page.getByRole("button", { name: "Previous calendar week" })).toBeDisabled();
+  await expect(page.locator('.desk-calendar-slot[aria-current="time"]')).toHaveAttribute("data-day", "2026-10-05");
 });
 
 test("an open calendar rolls into the new week on Monday", async ({ page }) => {
@@ -273,9 +316,9 @@ test("composer rejects past and later-week times while keeping drafts editable",
   await input.fill("2026-10-01T10:00");
   await page.getByRole("button", { name: "Schedule on X", exact: true }).click();
   await expect(page.locator(".desk-error[role=alert]")).toContainText("future publication time");
-  await input.fill("2026-10-05T10:00");
+  await input.fill("2026-10-12T10:00");
   await page.getByRole("button", { name: "Schedule on X", exact: true }).click();
-  await expect(page.locator(".desk-error[role=alert]")).toContainText("current week");
+  await expect(page.locator(".desk-error[role=alert]")).toContainText("this week or next week");
   await page.getByRole("button", { name: "Save draft", exact: true }).click();
   await expect(page.getByRole("status")).toContainText("X draft saved");
 });

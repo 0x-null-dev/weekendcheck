@@ -1,6 +1,6 @@
 "use client";
 import { useEffect, useState, useSyncExternalStore } from "react";
-import { scheduleWeek } from "@/lib/schedule-window";
+import { scheduleWeek, scheduleWindow } from "@/lib/schedule-window";
 
 export function localDateTime(date: Date): string {
   return new Date(date.getTime() - date.getTimezoneOffset() * 60000).toISOString().slice(0, 16);
@@ -30,5 +30,5 @@ export function useScheduleClock() {
   const week = scheduleWeek(now, timeZone);
   // datetime-local uses minute precision, so the first selectable time is the next minute.
   const min = localDateTime(new Date((Math.floor(now.getTime() / 60000) + 1) * 60000));
-  return { ready, now, timeZone, week, min: ready ? min : undefined, max: ready ? `${week.end}T23:59` : undefined };
+  return { ready, now, timeZone, week, min: ready ? min : undefined, max: ready ? `${scheduleWindow(now, timeZone).end}T23:59` : undefined };
 }

@@ -85,7 +85,7 @@ function Editor({ id, initial }: { id: string; initial: { title: string; posts: 
       <section className="desk-panel"><h2>Publish on the site</h2><p>Save your draft, then publish or schedule it. Editing a draft leaves the live version unchanged.</p>
         {liveVersion(review) && <a className="desk-button" href={`/projects/${product.slug}`} target="_blank" rel="noreferrer">View published review ↗</a>}
         <button className="desk-button primary" disabled={busy || uploading} onClick={async () => { if (window.confirm("Publish this review on your website now?") && await save()) await run({ action: "publishReview", reviewId: id }, "Review published on the site."); }}>{liveVersion(review) ? "Update published review" : "Publish now"}</button>
-        <label>Schedule on site<input type="datetime-local" min={min} max={max} value={publishAt} onChange={e => setPublishAt(e.target.value)} /></label><small>{timeZone} · Future times this week only.</small>
+        <label>Schedule on site<input type="datetime-local" min={min} max={max} value={publishAt} onChange={e => setPublishAt(e.target.value)} /></label><small>{timeZone} · Future times this week or next week.</small>
         <button className="desk-button" disabled={!ready || busy || uploading || !publishAt} onClick={async () => {
           const date = new Date(publishAt);
           const timeError = scheduleTimeError(publishAt, timeZone);

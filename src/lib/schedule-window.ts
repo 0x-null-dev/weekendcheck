@@ -18,14 +18,24 @@ export function scheduleWeek(now: Date, timeZone: string) {
   return { start, end: shiftCalendarDay(start, 6) };
 }
 
+export function scheduleWindow(now: Date, timeZone: string) {
+  const week = scheduleWeek(now, timeZone);
+  return { start: week.start, end: shiftCalendarDay(week.end, 7) };
+}
+
+export function calendarViewWeek(requested: string | undefined, currentWeek: string): string {
+  const next = shiftCalendarDay(currentWeek, 7);
+  return requested && /^\d{4}-\d{2}-\d{2}$/.test(requested) && requested >= next && requested <= shiftCalendarDay(next, 6) ? next : currentWeek;
+}
+
 export function scheduleTimeError(value: string | null, timeZone = "UTC", now = new Date()): string | null {
   const at = value ? new Date(value) : new Date(NaN);
   if (!Number.isFinite(at.getTime())) return "Choose a valid date and time.";
   if (at.getTime() <= now.getTime()) return "Choose a future publication time.";
   try {
-    const { start, end } = scheduleWeek(now, timeZone);
+    const { start, end } = scheduleWindow(now, timeZone);
     const day = calendarDate(at, timeZone);
-    if (day < start || day > end) return "Choose a time within the current week (Monday–Sunday).";
+    if (day < start || day > end) return "Choose a future time this week or next week.";
   } catch {
     return "Choose a valid time zone.";
   }
