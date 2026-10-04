@@ -1,0 +1,32 @@
+.logo {
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+  gap: 8px;
+  color: #1d3444;
+  font-weight: 700;
+  letter-spacing: -.055em;
+}
+
+.logo > img {
+  width: 32px;
+  height: 32px;
+  border: 1px solid #1d3444;
+  border-radius: 50%;
+  object-fit: cover;
+  object-position: 50% 34%;
+}
+
+.logo i {
+  font-size: 12px;
+  line-height: .86;
+  font-style: normal;
+}
+
+.logo i b { font-size: 13px; }
+
+@media (max-width: 720px) {
+  .logo > img { width: 26px; height: 26px; }
+  .logo i { font-size: 11px; }
+  .logo i b { font-size: 12px; }
+}

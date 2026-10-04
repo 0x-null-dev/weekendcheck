@@ -94,6 +94,28 @@ test("review types and access stay simple and persist through selection edits", 
   await page.screenshot({ path: "/private/tmp/weekendcheck-review-tracking-mobile.png", fullPage: true });
 });
 
+test("admin and landing page reuse the same responsive logo", async ({ page }) => {
+  for (const width of [1440, 390]) {
+    await page.setViewportSize({ width, height: 844 });
+    const measurements = [];
+    for (const route of ["/", "/admin"]) {
+      await page.goto(route);
+      const logo = page.getByRole("link", { name: "0xAlex Check home", exact: true });
+      await expect(logo).toHaveAttribute("href", "/");
+      await expect(logo).toContainText("0xAlex");
+      const portrait = logo.getByRole("img", { name: "Pixel-art portrait of Alex" });
+      await expect(portrait).toHaveCSS("border-radius", "50%");
+      await expect(portrait).toHaveCSS("width", width === 390 ? "26px" : "32px");
+      measurements.push(await portrait.evaluate(image => {
+        const style = getComputedStyle(image);
+        return { width: style.width, height: style.height, border: style.border, position: style.objectPosition };
+      }));
+    }
+    expect(measurements[0]).toEqual(measurements[1]);
+  }
+  await page.screenshot({ path: "/private/tmp/weekendcheck-admin-shared-logo-mobile.png", fullPage: true });
+});
+
 test("admin navigation and mobile layout have no dead routes or overflow", async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
   const errors: string[] = [];

@@ -1,9 +1,10 @@
 import Link from "next/link";
 import Image from "next/image";
+import styles from "./mark.module.css";
 import { defaultSettings, type Settings } from "@/lib/editorial";
 
 export function Mark() {
-  return <Link href="/" className="mark alex-mark" aria-label="0xAlex Check home"><Image src="/0x-alex.png" width={42} height={42} alt="Pixel-art portrait of Alex" priority /><i><b>0xAlex</b><br />Check</i></Link>;
+  return <Link href="/" className={styles.logo} aria-label="0xAlex Check home"><Image src="/0x-alex.png" width={32} height={32} alt="Pixel-art portrait of Alex" priority /><i><b>0xAlex</b><br />Check</i></Link>;
 }
 
 export function SiteHeader({ settings = defaultSettings }: { settings?: Settings }) {
