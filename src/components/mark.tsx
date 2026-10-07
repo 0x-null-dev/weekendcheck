@@ -14,5 +14,5 @@ export function SiteHeader({ settings = defaultSettings }: { settings?: Settings
 
 export function SiteFooter({ settings = defaultSettings }: { settings?: Settings }) {
   const handle = settings.handle || "0xAlex_dev";
-  return <footer className="alex-footer"><p>Built with <span role="img" aria-label="love">♥</span> by <a href={`https://x.com/${handle}`} target="_blank" rel="noreferrer">0xAlex</a></p></footer>;
+  return <footer className="alex-footer"><p>Built with <span role="img" aria-label="love">♥</span> by <a href={`https://x.com/${handle}`} target="_blank" rel="noreferrer">0xAlex</a> · <Link href="/research">Research</Link> · <Link href="/research/privacy">Research privacy</Link></p></footer>;
 }
