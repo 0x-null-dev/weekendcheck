@@ -19,6 +19,8 @@ export type Product = {
 export type Entry = {
   projectId: string; track: Track; source: string; note: string;
   access?: ReviewAccess;
+  // Amount paid for access in euro cents; only kept while access is "paid".
+  costCents?: number;
   fit: number; clarity: number; interest: number; ready: boolean;
 };
 export type Week = {

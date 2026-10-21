@@ -1,7 +1,5 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { SiteFooter, SiteHeader } from "@/components/mark";
-import styles from "../research.module.css";
 
 export const metadata: Metadata = {
   title: "Research privacy policy",
@@ -10,10 +8,10 @@ export const metadata: Metadata = {
 };
 
 export default function ResearchPrivacyPage() {
-  return <><SiteHeader /><main className={styles.page}>
+  return <div className="wrap page prose">
     <Link href="/research">← 0xAlex Research</Link>
     <h1>Research privacy policy</h1>
-    <p className={styles.label}>Effective October 7, 2026</p>
+    <p className="label">Effective October 7, 2026</p>
     <p>This policy covers 0xAlex Research, a private local research tool operated by Alex. The Google Ads integration is being configured. The handling practices below apply when it is enabled.</p>
     <h2>Data accessed and purpose</h2>
     <p>The tool uses Google OAuth authorization and a Google Ads customer ID to request keyword suggestions and aggregate historical metrics, such as monthly search estimates, advertising competition, and bid ranges. Requests include research keywords and selected geographic and language settings.</p>
@@ -31,5 +29,5 @@ export default function ResearchPrivacyPage() {
     <p>These pages do not ask visitors to connect a Google account or submit research queries. The website hosting provider may process normal request information, such as IP addresses and browser details, to serve and secure the pages.</p>
     <h2>Changes</h2>
     <p>This page will be updated if the integration&apos;s purpose or data handling changes. The effective date above will reflect those updates.</p>
-  </main><SiteFooter /></>;
+  </div>;
 }

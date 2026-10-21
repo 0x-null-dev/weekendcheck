@@ -50,6 +50,12 @@ function reviewAccess(value: unknown): ReviewAccess | undefined {
   if (typeof value !== "string" || !["free", "trial", "paid"].includes(value)) fail("Choose Free, Trial, or Paid.");
   return value as ReviewAccess;
 }
+function costCents(value: unknown) {
+  if (value === null || value === undefined || value === "") return undefined;
+  const amount = String(value).trim().replace(",", ".");
+  if (!/^\d{1,4}(\.\d{1,2})?$/.test(amount) || Number(amount) <= 0 || Number(amount) > 1000) fail("Enter the amount paid in euros, for example 4.64.");
+  return Math.round(Number(amount) * 100);
+}
 function productFields(args: Record<string, unknown>) {
   const handle = text(args.handle, "X handle", false, 16).replace(/^@/, "");
   if (handle && !/^[a-zA-Z0-9_]{1,15}$/.test(handle)) fail("Enter an X handle without spaces.");
@@ -200,6 +206,8 @@ export function applyAction(state: EditorialState, command: unknown): Record<str
       if (!isSelected(entry.track)) fail("Choose Quick Take or Deep Review before recording access.");
       const access = reviewAccess(args.access);
       if (access) entry.access = access; else delete entry.access;
+      const cost = access === "paid" ? costCents(args.cost) : undefined;
+      if (cost) entry.costCents = cost; else delete entry.costCents;
       return {};
     }
     if (action === "saveWeek") {
@@ -262,6 +270,7 @@ export function applyAction(state: EditorialState, command: unknown): Record<str
       }
       entry.track = nextTrack;
       if (access) entry.access = access; else delete entry.access;
+      if (access !== "paid") delete entry.costCents;
       if (review && isSelected(nextTrack)) review.kind = nextTrack;
       return {};
     }

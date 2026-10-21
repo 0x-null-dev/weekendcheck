@@ -193,3 +193,13 @@ a.desk-list-row:hover strong { color: #557638; }
   .desk-tabs button { font-size: 12px; padding: 11px; }
   .desk-dialog { padding: 20px; }
 }
+.desk-cost { display: flex; align-items: center; gap: 6px; color: #656b5a; font-size: 12px; }
+.desk-cost input { width: 82px; padding: 6px 8px; }
+.desk-messages { display: grid; gap: 14px; }
+.desk-message { display: grid; gap: 8px; }
+.desk-message header { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; }
+.desk-message header a { color: #656b5a; margin-left: 6px; }
+.desk-message small { color: #787e6e; overflow-wrap: anywhere; }
+.desk-message p { margin: 4px 0; white-space: pre-wrap; line-height: 1.6; overflow-wrap: anywhere; }
+.desk-message.done { opacity: .7; }
+.desk-message .desk-row-actions { flex-direction: row; min-width: 0; }

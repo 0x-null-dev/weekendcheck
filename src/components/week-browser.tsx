@@ -27,16 +27,16 @@ export function WeekBrowser({ weeks, initialWeek }: { weeks: ReviewWeek[]; initi
     const order = { deep: 0, quick: 1, shortlisted: 2, inbox: 3, passed: 4 };
     return order[a.track] - order[b.track] || Number(Boolean(b.reviewed)) - Number(Boolean(a.reviewed));
   });
-  return <section id="weeks" className="week-browser section">
-    <div className="week-browser-top">
-      <div><p className="eyebrow">BROWSE BY WEEK</p><h2>What&apos;s on the desk</h2></div>
-      <div className="week-controls"><button onClick={() => choose(activeIndex - 1)} disabled={!week || activeIndex === 0} aria-label="Older week">←</button><button onClick={() => choose(activeIndex + 1)} disabled={!week || activeIndex === chronologicalWeeks.length - 1} aria-label="Newer week">→</button></div>
+  const reviewed = orderedEntries.filter(entry => entry.reviewed).length;
+  return <div className="week-browser">
+    <div className="week-tabs-row">
+      <div ref={tabs} className="week-tabs" role="group" aria-label="Choose a week">
+        {chronologicalWeeks.map((item, index) => <button aria-pressed={index === activeIndex} onClick={() => choose(index)} key={item.slug}><span className="label">Week {index + 1}</span><small>{formatWeekRange(item.startsOn)}</small></button>)}
+      </div>
+      {chronologicalWeeks.length > 1 && <div className="week-arrows"><button onClick={() => choose(activeIndex - 1)} disabled={activeIndex === 0} aria-label="Older week">←</button><button onClick={() => choose(activeIndex + 1)} disabled={activeIndex === chronologicalWeeks.length - 1} aria-label="Newer week">→</button></div>}
     </div>
-    <div ref={tabs} className="week-tabs" aria-label="Choose a review week">
-      {chronologicalWeeks.map((item, index) => <button aria-pressed={index === activeIndex} onClick={() => choose(index)} className={index === activeIndex ? "active" : ""} key={item.slug}><span>{index === chronologicalWeeks.length - 1 ? "Latest week" : "Week of"}</span><small>{formatWeekRange(item.startsOn)}</small></button>)}
-    </div>
-    <div className="project-table homepage-projects">{orderedEntries.slice(0, visibleCount).map((project, index) => <ProjectRow project={project} number={index + 1} key={project.slug} />)}</div>
-    {!week && <p>No weeks published yet. The next call for projects will be on X.</p>}
-    {orderedEntries.length > visibleCount && <button className="button outline" style={{ marginTop: 24 }} onClick={() => setVisibleCount(count => count + 20)}>Show more projects ({orderedEntries.length - visibleCount} remaining)</button>}
-  </section>;
+    {week && <p className="week-summary label">{orderedEntries.length} {orderedEntries.length === 1 ? "project" : "projects"} · {reviewed} reviewed</p>}
+    <div className="project-list">{orderedEntries.slice(0, visibleCount).map(project => <ProjectRow project={project} key={project.slug} />)}</div>
+    {orderedEntries.length > visibleCount && <button className="btn btn-ghost" onClick={() => setVisibleCount(count => count + 20)}>Show {Math.min(20, orderedEntries.length - visibleCount)} more</button>}
+  </div>;
 }

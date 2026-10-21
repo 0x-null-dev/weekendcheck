@@ -1,7 +1,5 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { SiteFooter, SiteHeader } from "@/components/mark";
-import styles from "./research.module.css";
 
 export const metadata: Metadata = {
   title: "0xAlex Research",
@@ -10,9 +8,9 @@ export const metadata: Metadata = {
 };
 
 export default function ResearchPage() {
-  return <><SiteHeader /><main className={styles.page}>
-    <Link href="/">← 0xAlex Check</Link>
-    <p className={styles.label}>PRIVATE RESEARCH TOOL</p>
+  return <div className="wrap page prose">
+    <Link className="back label" href="/">← 0xAlex Check</Link>
+    <p className="label">PRIVATE RESEARCH TOOL</p>
     <h1>0xAlex Research</h1>
     <p>I&apos;m Alex, the operator of 0xAlex Check. Alongside trying and reviewing products, I maintain a private tool on my own computer to explore product markets and search demand.</p>
     <h2>What the tool does</h2>
@@ -24,5 +22,5 @@ export default function ResearchPage() {
     <p>The research tool runs locally. This website hosts its public information and privacy policy. Keyword estimates are research evidence, not proof of customer demand or willingness to pay.</p>
     <p><Link href="/research/privacy">Read the research privacy policy</Link></p>
     <p>Questions: <a href="mailto:0xnull.dev@gmail.com">0xnull.dev@gmail.com</a>.</p>
-  </main><SiteFooter /></>;
+  </div>;
 }

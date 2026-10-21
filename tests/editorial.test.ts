@@ -75,7 +75,7 @@ test("imports reuse canonical project history and skip duplicates", () => {
   const result = applyAction(state, { action: "importProjects", weekId: week.id, candidates: [{ name: "Renamed", url: "https://pgvitals.kafal.studio/?utm_source=x", handle: "", description: "", source: "" }, { name: "Again", url: "https://pgvitals.kafal.studio", handle: "", description: "", source: "" }] });
   assert.deepEqual(result, { added: 1, skipped: 1 }); assert.equal(state.projects.length, initial);
 });
-test("access tracking stays private, validates choices, and remains editable after completion", () => {
+test("free and trial access stay private, validates choices, and remains editable after completion", () => {
   const { state, week } = fixture();
   const review = pick(state, week);
   const entry = week.entries[0];
@@ -92,10 +92,10 @@ test("access tracking stays private, validates choices, and remains editable aft
   assert.equal(review.kind, "deep");
   assert.equal(reviewTrackingLabel(entry.track, entry.access), "Deep Review · Trial");
   applyAction(state, { action: "publishSelection", weekId: week.id });
-  const publicBefore = JSON.stringify(publicData(state));
-  applyAction(state, { ...command, access: "paid" });
-  assert.equal(JSON.stringify(publicData(state)), publicBefore);
   assert.equal("access" in publicData(state).weeks.find(w => w.slug === week.id)!.entries[0], false);
+  applyAction(state, { ...command, access: "free" });
+  assert.equal("access" in publicData(state).weeks.find(w => w.slug === week.id)!.entries[0], false);
+  applyAction(state, { ...command, access: "paid" });
   applyAction(state, { action: "publishReview", reviewId: review.id });
   week.state = "complete";
   applyAction(state, { ...command, access: "free" });
@@ -169,4 +169,27 @@ test("storage persists, rejects stale saves, and does not write partial failures
     await assert.rejects(changeState(saved.revision, state => { state.projects = []; throw new Error("deliberate failure"); }), /deliberate/);
     assert.equal((await readState()).projects.length, saved.projects.length);
   } finally { delete process.env.WEEKENDCHECK_DATA_DIR; await rm(directory, { recursive: true, force: true }); }
+});
+
+test("paid access records an amount that feeds the public budget", () => {
+  const { state, week } = fixture();
+  pick(state, week);
+  const entry = week.entries[0];
+  const command = { action: "saveReviewAccess", weekId: week.id, projectId: entry.projectId };
+  applyAction(state, { ...command, access: "paid", cost: "4,64" });
+  assert.equal(entry.costCents, 464);
+  for (const cost of ["-1", "abc", "4.999", "1000.01", "0"]) assert.throws(() => applyAction(state, { ...command, access: "paid", cost }), /amount paid in euros/);
+  assert.equal(entry.costCents, 464);
+  applyAction(state, { action: "publishSelection", weekId: week.id });
+  const { budget, weeks } = publicData(state);
+  assert.equal(budget.spentCents, 464);
+  assert.equal(budget.leftCents, 100_000 - 464);
+  assert.equal(budget.purchases.length, 1);
+  assert.equal(weeks.find(w => w.slug === week.id)!.entries[0].costCents, 464);
+  applyAction(state, { ...command, access: "trial" });
+  assert.equal(entry.costCents, undefined);
+  assert.equal(publicData(state).budget.spentCents, 0);
+  applyAction(state, { ...command, access: "paid", cost: "9.99" });
+  applyAction(state, { action: "saveEntry", weekId: week.id, ...entry, access: "free" });
+  assert.equal(entry.costCents, undefined);
 });

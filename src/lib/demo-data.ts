@@ -10,6 +10,9 @@ export type Project = {
   description: string;
   category: string;
   reviewed?: ReviewKind;
+  access?: import("./editorial").ReviewAccess;
+  costCents?: number;
+  weekStartsOn?: string;
   reviewTitle?: string;
   reviewExcerpt?: string;
   review?: {
