@@ -2,6 +2,9 @@ import { getPublicData } from "@/lib/public-data";
 import { SiteFooter, SiteHeader } from "@/components/mark";
 import { WeekBrowser } from "@/components/week-browser";
 import Image from "next/image";
+import type { Metadata } from "next";
+
+export const metadata: Metadata = { alternates: { canonical: "/" } };
 
 export const dynamic = "force-dynamic";
 export default async function Home({ searchParams }: { searchParams: Promise<{ week?: string }> }) {

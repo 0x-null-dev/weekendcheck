@@ -2,6 +2,13 @@ import Link from "next/link";
 import { getPublicData } from "@/lib/public-data";
 import { SiteFooter, SiteHeader } from "@/components/mark";
 import { KindBadge } from "@/components/badges";
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Reviews",
+  description: "Published reviews of indie apps and AI projects that Alex tried, tested, and sometimes paid for.",
+  alternates: { canonical: "/reviews" },
+};
 
 export const dynamic = "force-dynamic";
 export default async function ReviewsPage() {

@@ -1,14 +1,39 @@
+import { cache } from "react";
+import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { getPublicData } from "@/lib/public-data";
+import { siteName, xHandle } from "@/lib/site";
 import { SiteFooter, SiteHeader } from "@/components/mark";
 import { ProjectLogo } from "@/components/project-logo";
 import { ReviewThread } from "@/components/review-thread";
 import styles from "./review.module.css";
 
 export const dynamic = "force-dynamic";
+// Metadata and the page share one database read per request.
+const publicData = cache(getPublicData);
+
+function summary(text: string) {
+  const plain = text.replace(/\s+/g, " ").trim();
+  return plain.length > 155 ? `${plain.slice(0, 155).replace(/\s+\S*$/, "")}…` : plain;
+}
+
+export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
+  const { slug } = await params;
+  const project = (await publicData()).reviewedProjects.find(project => project.slug === slug);
+  if (!project?.reviewed) return { robots: { index: false } };
+  const title = `${project.name} review`;
+  const description = summary(project.review?.posts[0]?.text || project.description);
+  return {
+    title, description,
+    alternates: { canonical: `/projects/${slug}` },
+    openGraph: { type: "article", siteName, title: project.reviewTitle || title, description, url: `/projects/${slug}` },
+    twitter: { card: "summary_large_image", site: `@${xHandle}`, creator: `@${xHandle}`, title: project.reviewTitle || title, description },
+  };
+}
+
 export default async function ProjectPage({ params }: { params: Promise<{ slug: string }> }) {
-  const { reviewedProjects, settings } = await getPublicData();
+  const { reviewedProjects, settings } = await publicData();
   const { slug } = await params;
   const project = reviewedProjects.find(project => project.slug === slug);
   if (!project || !project.reviewed) notFound();
