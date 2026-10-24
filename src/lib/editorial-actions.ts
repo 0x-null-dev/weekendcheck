@@ -313,8 +313,14 @@ export function applyAction(state: EditorialState, command: unknown): Record<str
     if (action === "unpublishReview") { review.published = null; review.scheduled = null; return {}; }
     if (action === "cancelSchedule") { review.scheduled = null; return {}; }
     const week = getWeek(state, review.weekId);
-    if (!week.selection?.some(e => e.projectId === review.projectId && e.track === review.kind)) fail("Publish this project's selection in the week first.");
+    const entry = week.entries.find(e => e.projectId === review.projectId) || fail("Add this project to the week first.");
+    if (entry.track !== review.kind) fail("Set the project's review type in the week to match this review.");
+    const reason = selectionBlock(state, week, entry);
+    if (reason) fail(`${getProduct(state, entry.projectId).name}: ${reason}`);
     if (!review.title || review.posts.some(p => !p.text.trim() && !p.assets.length)) fail("Give the review a title and remove empty posts before publishing.");
+    // Publishing a review also publishes this one project in the week; other unpublished week changes stay private.
+    week.selection = [...(week.selection || []).filter(e => e.projectId !== entry.projectId), { projectId: entry.projectId, track: entry.track }];
+    if (week.state === "collecting") week.state = "curating";
     const version = { title: review.title, posts: structuredClone(review.posts), publishedAt: new Date().toISOString() };
     if (action === "scheduleReview") {
       const at = text(args.publishAt, "publish time", true, 50);

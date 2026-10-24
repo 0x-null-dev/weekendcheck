@@ -72,7 +72,7 @@ The migration only creates app-owned objects. It does **not** drop `public`, `au
 2. Add projects manually or import X replies into an editable, deduplicated preview.
 3. Choose Quick take or Deep review directly in the weekly list; no quotas or scoring. Previously reviewed/reserved projects cannot be picked again.
 4. Publish the weekly selection. Subsequent edits remain private until republished.
-5. Write/reorder thread posts and add screenshots or video. Publish or schedule a website snapshot.
+5. Write/reorder thread posts and add screenshots or video. Publish or schedule a website snapshot. Publishing or scheduling a review also adds that project to the public week; other unpublished week changes stay private.
 6. Copy a review into an X draft, or compose a standalone X post. The weekly grid has clickable 30-minute slots and preserves the selected week.
 7. Complete the week once its selected reviews are published.
 

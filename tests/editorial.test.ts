@@ -135,11 +135,13 @@ test("draft saves do not alter live review; schedule is a frozen future snapshot
   applyAction(state, { action: "unpublishReview", reviewId: review.id });
   assert.ok(!publicData(state).reviewedProjects.some(p => p.name === "Test app"));
 });
-test("scheduled review can't publish before the week's selection is public", () => {
+test("scheduling a review publishes its project in a private week", () => {
   const { state, week } = fixture();
   const review = pick(state, week);
   week.selection = null;
-  assert.throws(() => applyAction(state, { action: "scheduleReview", reviewId: review.id, publishAt: new Date(Date.now() + 86400000).toISOString() }), /selection/);
+  applyAction(state, { action: "scheduleReview", reviewId: review.id, publishAt: new Date(Date.now() + 86400000).toISOString() });
+  assert.deepEqual(week.selection, [{ projectId: review.projectId, track: "quick" }]);
+  assert.ok(review.scheduled);
 });
 test("published reviews prevent accidental removal and empty reviews cannot publish", () => {
   const { state, week } = fixture();
@@ -193,3 +195,34 @@ test("paid access records an amount that feeds the public budget", () => {
   applyAction(state, { action: "saveEntry", weekId: week.id, ...entry, access: "free" });
   assert.equal(entry.costCents, undefined);
 });
+
+test("publishing a review publishes only that project in the week", () => {
+  const { state, week } = fixture();
+  const first = add(state, week, "First app");
+  applyAction(state, { action: "saveEntry", weekId: week.id, ...first, track: "quick" });
+  applyAction(state, { action: "publishSelection", weekId: week.id });
+  const { id: laterProject } = applyAction(state, { action: "createProject", weekId: week.id, name: "Later app", url: "https://later-app.example", handle: "", category: "", description: "", logoUrl: "" });
+  const later = week.entries.find(e => e.projectId === laterProject)!;
+  const { id: laterId } = applyAction(state, { action: "createProject", weekId: week.id, name: "Private app", url: "https://private-app.example", handle: "", category: "", description: "", logoUrl: "" });
+  applyAction(state, { action: "saveEntry", weekId: week.id, ...later, track: "deep" });
+  const { id: reviewId } = applyAction(state, { action: "prepareReview", weekId: week.id, projectId: later.projectId });
+  applyAction(state, { action: "saveReview", reviewId, title: "Later review", posts: [{ id: "p1", text: "Text", assets: [] }], xPostUrl: "" });
+  applyAction(state, { action: "publishReview", reviewId });
+  const visible = publicData(state).weeks.find(w => w.slug === week.id)!;
+  assert.deepEqual(visible.entries.map(e => e.name).sort(), ["First app", "Later app"]);
+  assert.equal(visible.entries.find(e => e.name === "Later app")!.reviewed, "deep");
+  assert.equal(week.selection!.some(e => e.projectId === laterId), false);
+  assert.equal(week.selection!.filter(e => e.projectId === later.projectId).length, 1);
+
+  const { state: fresh, week: privateWeek } = fixture();
+  const solo = add(fresh, privateWeek, "Solo app");
+  applyAction(fresh, { action: "saveEntry", weekId: privateWeek.id, ...solo, track: "quick" });
+  const { id: soloReview } = applyAction(fresh, { action: "prepareReview", weekId: privateWeek.id, projectId: solo.projectId });
+  applyAction(fresh, { action: "saveReview", reviewId: soloReview, title: "", posts: [{ id: "p1", text: "Text", assets: [] }], xPostUrl: "" });
+  assert.throws(() => applyAction(fresh, { action: "publishReview", reviewId: soloReview }), /title/);
+  assert.equal(privateWeek.selection, null);
+  applyAction(fresh, { action: "saveReview", reviewId: soloReview, title: "Solo review", posts: [{ id: "p1", text: "Text", assets: [] }], xPostUrl: "" });
+  applyAction(fresh, { action: "publishReview", reviewId: soloReview });
+  assert.equal(publicData(fresh).weeks.find(w => w.slug === privateWeek.id)!.entries.length, 1);
+});
+
